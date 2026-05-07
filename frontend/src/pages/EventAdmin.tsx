@@ -216,7 +216,7 @@ export default function EventAdmin() {
     const url = getListUrl()
     if (navigator.share) {
       try {
-        await navigator.share({ title: `Passar llista — ${event.name}`, url })
+        await navigator.share({ title: `Passar llista — ${event!.name}`, url })
       } catch {}
     } else {
       copyLink()
