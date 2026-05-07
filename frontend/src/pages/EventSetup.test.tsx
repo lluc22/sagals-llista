@@ -21,7 +21,7 @@ vi.mock('../lib/api', () => ({
 }))
 
 const mockEvent = { id: 1, name: 'Festa Major', slug: 'festa-major', status: 'draft', column_mapping: {}, transport_mapping: {}, access_token: null, inserted_at: '' }
-const mockBuses = [{ id: 1, event_id: 1, label: 'Bus 1', direction: 'ambdues', departure_time: '08:00', order: 1 }]
+const mockBuses = [{ id: 1, event_id: 1, label: 'Bus 1', direction: 'anada', departure_time: '08:00', order: 1 }]
 
 function renderSetup() {
   return render(

@@ -27,7 +27,7 @@ export interface ColumnMapping {
 
 export interface TransportBusEntry {
   busId: number
-  direction: 'anada' | 'tornada' | 'ambdues'
+  direction: 'anada' | 'tornada'
 }
 
 export interface TransportMapping {
@@ -42,7 +42,7 @@ export interface Bus {
   event_id: number
   label: string
   departure_time: string
-  direction: 'anada' | 'tornada' | 'ambdues'
+  direction: 'anada' | 'tornada'
   order: number
 }
 

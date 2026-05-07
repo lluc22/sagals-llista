@@ -5,10 +5,10 @@ defmodule Sagals.AttendanceTest do
 
   defp setup_trip(_) do
     {:ok, event} = Events.create_event(%{name: "Test", date: ~D[2025-01-01], slug: "test-#{System.unique_integer()}"})
-    {:ok, bus} = Events.create_bus(event, %{label: "Bus", direction: "ambdues", order: 1})
+    {:ok, bus} = Events.create_bus(event, %{label: "Bus", direction: "anada", order: 1})
 
     transport_mapping = %{
-      "Bus" => %{"usesBus" => true, "buses" => [%{"busId" => to_string(bus.id), "direction" => "ambdues"}]}
+      "Bus" => %{"usesBus" => true, "buses" => [%{"busId" => to_string(bus.id), "direction" => "anada"}]}
     }
 
     {:ok, _} = Events.import_participants(event, [

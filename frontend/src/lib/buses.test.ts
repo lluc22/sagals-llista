@@ -5,7 +5,7 @@ describe('addBus', () => {
   it('afegeix un bus amb valors per defecte a la llista', () => {
     const result = addBus([])
     expect(result).toHaveLength(1)
-    expect(result[0]).toMatchObject({ label: '', departure_time: '', direction: 'ambdues' })
+    expect(result[0]).toMatchObject({ label: '', departure_time: '', direction: 'anada' })
   })
 
   it('assigna order incremental', () => {
@@ -52,7 +52,7 @@ describe('updateBus', () => {
   it('actualitza only el camp indicat, preserva la resta', () => {
     const list = addBus([])
     const result = updateBus(list, 0, { label: 'Bus Vic' })
-    expect(result[0].direction).toBe('ambdues')
+    expect(result[0].direction).toBe('anada')
     expect(result[0].departure_time).toBe('')
   })
 })

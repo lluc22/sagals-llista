@@ -60,7 +60,7 @@ defmodule SagalsWeb.EventControllerTest do
 
     test "POST /api/events/:id/buses creates bus", %{conn: conn, event: event} do
       resp = conn
-        |> post("/api/events/#{event.id}/buses", %{label: "Bus Vic", direction: "ambdues", order: 1})
+        |> post("/api/events/#{event.id}/buses", %{label: "Bus Vic", direction: "anada", order: 1})
         |> json_response(201)
 
       assert resp["data"]["label"] == "Bus Vic"

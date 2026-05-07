@@ -64,7 +64,7 @@ defmodule Sagals.EventsTest do
     end
 
     test "create_bus/2 creates a bus for an event", %{event: event} do
-      assert {:ok, bus} = Events.create_bus(event, %{label: "Bus Vic", direction: "ambdues", order: 1})
+      assert {:ok, bus} = Events.create_bus(event, %{label: "Bus Vic", direction: "anada", order: 1})
       assert bus.label == "Bus Vic"
       assert bus.event_id == event.id
     end
@@ -92,14 +92,14 @@ defmodule Sagals.EventsTest do
   describe "import_participants/3" do
     setup do
       {:ok, event} = Events.create_event(event_attrs())
-      {:ok, bus1} = Events.create_bus(event, %{label: "Bus Vic", direction: "ambdues", order: 1})
+      {:ok, bus1} = Events.create_bus(event, %{label: "Bus Vic", direction: "anada", order: 1})
       {:ok, bus2} = Events.create_bus(event, %{label: "Bus Manlleu", direction: "anada", order: 2})
       {:ok, event: event, bus1: bus1, bus2: bus2}
     end
 
     test "creates participants and trips from import data", %{event: event, bus1: bus1} do
       transport_mapping = %{
-        "Bus Vic" => %{"usesBus" => true, "buses" => [%{"busId" => to_string(bus1.id), "direction" => "ambdues"}]}
+        "Bus Vic" => %{"usesBus" => true, "buses" => [%{"busId" => to_string(bus1.id), "direction" => "anada"}]}
       }
 
       rows = [
@@ -117,9 +117,9 @@ defmodule Sagals.EventsTest do
       assert length(trips) == 2
     end
 
-    test "ambdues direction creates two trips per participant", %{event: event, bus1: bus1} do
+    test "anada direction creates one trip per participant", %{event: event, bus1: bus1} do
       transport_mapping = %{
-        "Bus" => %{"usesBus" => true, "buses" => [%{"busId" => to_string(bus1.id), "direction" => "ambdues"}]}
+        "Bus" => %{"usesBus" => true, "buses" => [%{"busId" => to_string(bus1.id), "direction" => "anada"}]}
       }
 
       rows = [%{first_name: "Anna", last_name: "Vila", last_name2: "", nickname: "", transport_raw: "Bus"}]
@@ -129,7 +129,7 @@ defmodule Sagals.EventsTest do
       anada_trips = Events.list_trips_for_bus(bus1.id, "anada")
       tornada_trips = Events.list_trips_for_bus(bus1.id, "tornada")
       assert length(anada_trips) == 1
-      assert length(tornada_trips) == 1
+      assert length(tornada_trips) == 0
     end
 
     test "participant with no bus gets no trips", %{event: event} do

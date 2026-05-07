@@ -6,8 +6,7 @@ import { addBus, removeBus, updateBus, type BusDraft } from '../lib/buses'
 import type { Event, Bus } from '../types'
 
 const DIRECTION_LABELS = {
-  ambdues: 'Anada i tornada',
-  anada: 'Només anada',
+  anada:   'Només anada',
   tornada: 'Només tornada',
 }
 

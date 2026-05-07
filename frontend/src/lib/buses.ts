@@ -1,4 +1,4 @@
-export type BusDirection = 'anada' | 'tornada' | 'ambdues'
+export type BusDirection = 'anada' | 'tornada'
 
 export interface BusDraft {
   label: string
@@ -10,7 +10,7 @@ export interface BusDraft {
 export const defaultBus: BusDraft = {
   label: '',
   departure_time: '',
-  direction: 'ambdues',
+  direction: 'anada',
   order: 0,
 }
 

@@ -27,11 +27,11 @@ const draftEvent = {
 }
 const activeEvent = { ...draftEvent, status: 'active', access_token: 'tok123' }
 const buses = [
-  { id: 1, event_id: 1, label: 'Bus Vic',    direction: 'ambdues', departure_time: '08:00', order: 1 },
+  { id: 1, event_id: 1, label: 'Bus Vic',    direction: 'anada', departure_time: '08:00', order: 1 },
   { id: 2, event_id: 1, label: 'Bus Manlleu', direction: 'anada',   departure_time: '09:00', order: 2 },
 ]
 const participants = [
-  { id: 1, event_id: 1, first_name: 'Anna', last_name: 'Vila',  last_name2: '', nickname: '', transport_raw: 'Bus',   trips: [{ id: 1, bus_id: 1, direction: 'ambdues' }] },
+  { id: 1, event_id: 1, first_name: 'Anna', last_name: 'Vila',  last_name2: '', nickname: '', transport_raw: 'Bus',   trips: [{ id: 1, bus_id: 1, direction: 'anada' }] },
   { id: 2, event_id: 1, first_name: 'Pau',  last_name: 'Serra', last_name2: '', nickname: '', transport_raw: 'Bus',   trips: [{ id: 2, bus_id: 1, direction: 'anada' }] },
   { id: 3, event_id: 1, first_name: 'Joan', last_name: 'Pla',   last_name2: '', nickname: '', transport_raw: 'Propi', trips: [] },
 ]
@@ -195,7 +195,7 @@ describe('EventAdmin - busos', () => {
 
   it('afegir bus crida post i afegeix a la llista', async () => {
     setup()
-    mockPost.mockResolvedValue({ data: { id: 3, event_id: 1, label: 'Bus Nou', direction: 'ambdues', departure_time: '', order: 3 } })
+    mockPost.mockResolvedValue({ data: { id: 3, event_id: 1, label: 'Bus Nou', direction: 'anada', departure_time: '', order: 3 } })
     renderAdmin()
     await waitFor(() => screen.getByRole('button', { name: /afegir bus/i }))
     fireEvent.click(screen.getByRole('button', { name: /afegir bus/i }))

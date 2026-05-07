@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
-import { ArrowLeft, Copy, CheckCircle, Pencil, Trash2, Plus, X, Save, AlertTriangle, Users, MessageSquare, Share2 } from 'lucide-react'
+import { ArrowLeft, Copy, CheckCircle, Pencil, Trash2, Plus, X, Save, AlertTriangle, Users, MessageSquare, Share2, ExternalLink } from 'lucide-react'
 import { api } from '../lib/api'
 import type { Event, Bus, Participant } from '../types'
 
@@ -13,16 +13,15 @@ const STATUS_LABELS: Record<string, string> = {
 const DIR: Record<string, string> = {
   anada:   'Anada',
   tornada: 'Tornada',
-  ambdues: 'Anada i tornada',
 }
 
-const BUS_DIRS = ['anada', 'tornada', 'ambdues'] as const
+const BUS_DIRS = ['anada', 'tornada'] as const
 
-type BusDraft = { label: string; departure_time: string; direction: 'anada' | 'tornada' | 'ambdues' }
+type BusDraft = { label: string; departure_time: string; direction: 'anada' | 'tornada' }
 type TripDraft = { bus_id: number; direction: 'anada' | 'tornada' }
 type PartDraft = { first_name: string; last_name: string; last_name2: string; nickname: string; trips: TripDraft[] }
 
-const EMPTY_BUS: BusDraft = { label: '', departure_time: '', direction: 'ambdues' }
+const EMPTY_BUS: BusDraft = { label: '', departure_time: '', direction: 'anada' }
 const EMPTY_PART: PartDraft = { first_name: '', last_name: '', last_name2: '', nickname: '', trips: [] }
 
 const SECTION_LIMIT = 6
@@ -232,7 +231,7 @@ export default function EventAdmin() {
   }
 
   function busDirs(bus: Bus): ('anada' | 'tornada')[] {
-    return bus.direction === 'ambdues' ? ['anada', 'tornada'] : [bus.direction as 'anada' | 'tornada']
+    return [bus.direction]
   }
 
   if (!event) return <div className="min-h-screen bg-gray-50 flex items-center justify-center text-gray-400">Carregant...</div>
@@ -327,8 +326,8 @@ export default function EventAdmin() {
           <div className="flex items-center gap-1">
             <span className="text-sm text-gray-900">{p.nickname || `${p.first_name} ${p.last_name}`}</span>
             {(p.nickname) && <span className="text-xs text-gray-400">({p.first_name} {p.last_name})</span>}
-            {p.companions && <span className="text-xs text-amber-600 flex items-center gap-0.5 truncate max-w-[120px]"><Users size={11} className="shrink-0" />{p.companions}</span>}
-            {p.observations && <span className="text-xs text-amber-600 flex items-center gap-0.5 truncate max-w-[120px]"><MessageSquare size={11} className="shrink-0" />{p.observations}</span>}
+            {p.companions && <span className="text-xs text-orange-800 flex items-center gap-0.5"><Users size={11} className="shrink-0" />{p.companions}</span>}
+            {p.observations && <span className="text-xs text-amber-600 flex items-center gap-0.5"><MessageSquare size={11} className="shrink-0" />{p.observations}</span>}
           </div>
         </div>
         <button onClick={() => startEditPart(p)} aria-label={`Editar ${p.first_name} ${p.last_name}`}
@@ -484,7 +483,7 @@ export default function EventAdmin() {
                             <p className="text-xs font-medium text-gray-800">{p.nickname || `${p.first_name} ${p.last_name}`}{p.nickname && ` (${p.first_name} ${p.last_name})`}</p>
                             {p.companions && (
                               <p className="text-xs text-gray-600 flex items-start gap-1">
-                                <Users size={11} className="shrink-0 mt-0.5 text-amber-500" />
+                                <Users size={11} className="shrink-0 mt-0.5 text-orange-700" />
                                 {p.companions}
                               </p>
                             )}
@@ -661,6 +660,9 @@ export default function EventAdmin() {
                 {window.location.origin}/list/{event.slug}
               </p>
               <div className="flex items-center gap-2 shrink-0">
+                <a href={getListUrl()} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1 text-xs text-sagals-dark hover:text-sagals">
+                  <ExternalLink size={12} /> Obrir
+                </a>
                 <button onClick={shareLink} className="flex items-center gap-1 text-xs text-sagals-dark hover:text-sagals">
                   <Share2 size={12} /> Compartir
                 </button>

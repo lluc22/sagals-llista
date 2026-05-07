@@ -2,12 +2,12 @@ defmodule Sagals.Events.Bus do
   use Ecto.Schema
   import Ecto.Changeset
 
-  @directions ~w(anada tornada ambdues)
+  @directions ~w(anada tornada)
 
   schema "buses" do
     field :label, :string
     field :departure_time, :string
-    field :direction, :string, default: "ambdues"
+    field :direction, :string, default: "anada"
     field :order, :integer, default: 0
 
     belongs_to :event, Sagals.Events.Event

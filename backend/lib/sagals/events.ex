@@ -156,7 +156,6 @@ defmodule Sagals.Events do
     end
   end
 
-  defp expand_direction("ambdues"), do: ["anada", "tornada"]
   defp expand_direction(dir), do: [dir]
 
   defp stringify_merge(base, extras) do

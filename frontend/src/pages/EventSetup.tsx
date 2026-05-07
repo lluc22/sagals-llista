@@ -26,7 +26,6 @@ const FIELD_LABELS: Record<keyof ColumnMapping, string> = {
 const DIRECTION_LABELS = {
   anada:   'Anada',
   tornada: 'Tornada',
-  ambdues: 'Anada i tornada',
 }
 
 export default function EventSetup() {
@@ -82,7 +81,7 @@ export default function EventSetup() {
     for (const val of uniqueVals) {
       initial[val] = {
         usesBus: false,
-        buses: buses.length > 0 ? [{ busId: buses[0].id, direction: 'ambdues' }] : [],
+        buses: buses.length > 0 ? [{ busId: buses[0].id, direction: 'anada' }] : [],
       }
     }
     setTransportRules(initial)
@@ -105,7 +104,7 @@ export default function EventSetup() {
       ...prev,
       [val]: {
         ...prev[val],
-        buses: [...prev[val].buses, { busId: buses[0]?.id ?? 0, direction: 'ambdues' }],
+        buses: [...prev[val].buses, { busId: buses[0]?.id ?? 0, direction: 'anada' }],
       },
     }))
   }

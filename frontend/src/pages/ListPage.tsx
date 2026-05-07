@@ -133,14 +133,14 @@ function TripRow({
             {participantName(t.participant)}
           </p>
           {(t.participant.companions || t.participant.observations) && (
-            <div className="flex items-center gap-2 mt-0.5">
+            <div className="flex flex-wrap items-center gap-x-3 gap-y-0.5 mt-0.5">
               {t.participant.companions && (
-                <span className="text-xs text-amber-600 flex items-center gap-0.5 truncate">
+                <span className="text-xs text-orange-800 flex items-center gap-0.5">
                   <Users size={10} className="shrink-0" />{t.participant.companions}
                 </span>
               )}
               {t.participant.observations && (
-                <span className="text-xs text-amber-600 flex items-center gap-0.5 truncate">
+                <span className="text-xs text-amber-600 flex items-center gap-0.5">
                   <MessageSquare size={10} className="shrink-0" />{t.participant.observations}
                 </span>
               )}
@@ -361,21 +361,16 @@ export default function ListPage() {
           <h1 className="text-xl font-bold text-sagals mb-1">Passar llista — Sagals d'Osona</h1>
           <p className="text-sm text-gray-500 mb-6">Selecciona el teu bus</p>
           <div className="space-y-3">
-            {buses.map(bus => {
-              const dirs = bus.direction === 'ambdues'
-                ? (['anada', 'tornada'] as const)
-                : ([bus.direction] as ('anada' | 'tornada')[])
-              return dirs.map(dir => (
+            {buses.map(bus => (
                 <button
-                  key={`${bus.id}-${dir}`}
-                  onClick={() => selectBus(bus, dir)}
+                  key={`${bus.id}-${bus.direction}`}
+                  onClick={() => selectBus(bus, bus.direction)}
                   className="w-full bg-white rounded-xl border border-sagals/20 p-4 text-left hover:border-sagals transition-colors shadow-sm"
                 >
                   <p className="font-semibold text-gray-900">{bus.label}</p>
-                  <p className="text-sm text-gray-500">{DIR[dir]}</p>
+                  <p className="text-sm text-gray-500">{DIR[bus.direction]}</p>
                 </button>
-              ))
-            })}
+            ))}
           </div>
         </div>
       </div>
