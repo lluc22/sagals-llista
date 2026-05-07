@@ -20,7 +20,9 @@ defmodule SagalsWeb.ParticipantController do
           last_name:     col(r, col_map["lastName"]),
           last_name2:    col(r, col_map["lastName2"]),
           nickname:      col(r, col_map["nickname"]),
-          transport_raw: col(r, col_map["transport"])
+          transport_raw: col(r, col_map["transport"]),
+          observations:  col(r, col_map["observations"]),
+          companions:    col(r, col_map["companions"])
         }
       end)
       |> Enum.reject(fn row -> row.first_name == "" and row.last_name == "" end)
@@ -73,6 +75,8 @@ defmodule SagalsWeb.ParticipantController do
       last_name2: p.last_name2,
       nickname: p.nickname,
       transport_raw: p.transport_raw,
+      observations: p.observations,
+      companions: p.companions,
       trips: trips
     }
   end

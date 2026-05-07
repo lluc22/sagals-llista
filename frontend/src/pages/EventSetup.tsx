@@ -14,11 +14,13 @@ interface TransportRule {
 }
 
 const FIELD_LABELS: Record<keyof ColumnMapping, string> = {
-  firstName:  'Nom',
-  lastName:   'Cognom',
-  lastName2:  'Segon cognom',
-  nickname:   'Sobrenom',
-  transport:  'Transport',
+  firstName:    'Nom',
+  lastName:     'Cognom',
+  lastName2:    'Segon cognom',
+  nickname:     'Sobrenom',
+  transport:    'Transport',
+  observations: 'Observacions',
+  companions:   'Acompanyants',
 }
 
 const DIRECTION_LABELS = {
@@ -39,7 +41,7 @@ export default function EventSetup() {
 
   const [headers, setHeaders] = useState<string[]>([])
   const [rows, setRows] = useState<string[][]>([])
-  const [mapping, setMapping] = useState<ColumnMapping>({ firstName: -1, lastName: -1, lastName2: -1, nickname: -1, transport: -1 })
+  const [mapping, setMapping] = useState<ColumnMapping>({ firstName: -1, lastName: -1, lastName2: -1, nickname: -1, transport: -1, observations: -1, companions: -1 })
   const [transportRules, setTransportRules] = useState<Record<string, TransportRule>>({})
 
   useEffect(() => {

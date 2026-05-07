@@ -7,18 +7,22 @@ export interface ParticipantDraft {
   last_name2: string
   nickname: string
   transport_raw: string
+  observations: string
+  companions: string
 }
 
 const COLUMN_PATTERNS: Record<keyof ColumnMapping, RegExp> = {
-  firstName:  /nom/i,
-  lastName:   /cognom/i,
-  lastName2:  /segon/i,
-  nickname:   /sobrenom|nick/i,
-  transport:  /transport/i,
+  firstName:    /nom/i,
+  lastName:     /cognom/i,
+  lastName2:    /segon/i,
+  nickname:     /sobrenom|nick/i,
+  transport:    /transport/i,
+  observations: /observaci/i,
+  companions:   /acompanyant/i,
 }
 
 export function detectColumns(headers: string[]): ColumnMapping {
-  const mapping: ColumnMapping = { firstName: -1, lastName: -1, lastName2: -1, nickname: -1, transport: -1 }
+  const mapping: ColumnMapping = { firstName: -1, lastName: -1, lastName2: -1, nickname: -1, transport: -1, observations: -1, companions: -1 }
 
   for (const [key, pattern] of Object.entries(COLUMN_PATTERNS) as [keyof ColumnMapping, RegExp][]) {
     const idx = headers.findIndex(h => pattern.test(h))
@@ -60,5 +64,7 @@ export function rowsToParticipants(rows: unknown[][], mapping: ColumnMapping, ev
       last_name2:    str(row[mapping.lastName2]),
       nickname:      str(row[mapping.nickname]),
       transport_raw: str(row[mapping.transport]),
+      observations:  str(row[mapping.observations]),
+      companions:    str(row[mapping.companions]),
     }))
 }

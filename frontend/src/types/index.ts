@@ -16,6 +16,8 @@ export interface ColumnMapping {
   lastName2: number
   nickname: number
   transport: number
+  observations: number
+  companions: number
 }
 
 export interface TransportBusEntry {
@@ -53,6 +55,8 @@ export interface Participant {
   last_name2: string
   nickname: string
   transport_raw: string
+  observations: string
+  companions: string
   trips: ParticipantTrip[]
 }
 
