@@ -83,7 +83,31 @@ defmodule Sagals.Events do
     |> Repo.update()
   end
 
+  def create_participant(event, attrs) do
+    %Participant{}
+    |> Participant.changeset(stringify_merge(attrs, %{event_id: event.id}))
+    |> Repo.insert()
+  end
+
   def delete_participant(participant), do: Repo.delete(participant)
+
+  def replace_participant_trips(participant, trips_data) do
+    Repo.transaction(fn ->
+      Repo.delete_all(from t in ParticipantTrip, where: t.participant_id == ^participant.id)
+      Enum.each(trips_data, fn t ->
+        %ParticipantTrip{}
+        |> ParticipantTrip.changeset(%{
+          participant_id: participant.id,
+          bus_id: to_int(t["bus_id"]),
+          direction: t["direction"]
+        })
+        |> Repo.insert!()
+      end)
+    end)
+  end
+
+  defp to_int(v) when is_integer(v), do: v
+  defp to_int(v), do: String.to_integer(to_string(v))
 
   def import_participants(event, rows, transport_mapping) do
     Repo.transaction(fn ->

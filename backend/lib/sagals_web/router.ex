@@ -26,7 +26,7 @@ defmodule SagalsWeb.Router do
     resources "/events", EventController, only: [:index, :show, :create, :update] do
       post "/activate", EventController, :activate
       resources "/buses", BusController, only: [:index, :create]
-      resources "/participants", ParticipantController, only: [:index]
+      resources "/participants", ParticipantController, only: [:index, :create]
       post "/participants/import", ParticipantController, :import
     end
 

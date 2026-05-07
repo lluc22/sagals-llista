@@ -41,14 +41,30 @@ defmodule SagalsWeb.ParticipantController do
   end
   defp col(_row, _), do: ""
 
+  def create(conn, %{"event_id" => event_id} = params) do
+    event = Events.get_event!(event_id)
+    attrs = Map.take(params, ["first_name", "last_name", "last_name2", "nickname", "transport_raw", "observations", "companions"])
+    case Events.create_participant(event, attrs) do
+      {:ok, p} ->
+        p = Sagals.Repo.preload(p, :participant_trips)
+        conn |> put_status(:created) |> json(%{data: serialize(p)})
+      {:error, cs} ->
+        conn |> put_status(:unprocessable_entity) |> json(%{errors: format_errors(cs)})
+    end
+  end
+
   def update(conn, %{"id" => id} = params) do
     participant = Events.get_participant!(id)
 
-    case Events.update_participant(participant, Map.drop(params, ["id"])) do
+    case Events.update_participant(participant, Map.drop(params, ["id", "trips"])) do
       {:ok, p} ->
-        p = Sagals.Repo.preload(p, :participant_trips)
+        if Map.has_key?(params, "trips") do
+          {:ok, _} = Events.replace_participant_trips(p, params["trips"])
+        end
+        p = Sagals.Repo.preload(p, :participant_trips, force: true)
         json(conn, %{data: serialize(p)})
-      {:error, cs} -> conn |> put_status(:unprocessable_entity) |> json(%{errors: format_errors(cs)})
+      {:error, cs} ->
+        conn |> put_status(:unprocessable_entity) |> json(%{errors: format_errors(cs)})
     end
   end
 
