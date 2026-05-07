@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
-import { ArrowLeft, Copy, CheckCircle, Pencil, Trash2, Plus, X, Save, AlertTriangle, Users, MessageSquare } from 'lucide-react'
+import { ArrowLeft, Copy, CheckCircle, Pencil, Trash2, Plus, X, Save, AlertTriangle, Users, MessageSquare, Share2 } from 'lucide-react'
 import { api } from '../lib/api'
 import type { Event, Bus, Participant } from '../types'
 
@@ -201,11 +201,26 @@ export default function EventAdmin() {
     } finally { setSavingBus(false) }
   }
 
+  function getListUrl() {
+    if (!event?.access_token) return ''
+    return `${window.location.origin}/list/${event.slug}?t=${event.access_token}`
+  }
+
   function copyLink() {
-    if (!event?.access_token) return
-    navigator.clipboard.writeText(`${window.location.origin}/list/${event.slug}?t=${event.access_token}`)
+    navigator.clipboard.writeText(getListUrl())
     setCopied('link')
     setTimeout(() => setCopied(null), 2000)
+  }
+
+  async function shareLink() {
+    const url = getListUrl()
+    if (navigator.share) {
+      try {
+        await navigator.share({ title: `Passar llista — ${event.name}`, url })
+      } catch {}
+    } else {
+      copyLink()
+    }
   }
 
   function tripSummary(p: Participant): string {
@@ -643,10 +658,15 @@ export default function EventAdmin() {
               <p className="text-xs text-gray-500 truncate flex-1 mr-2">
                 {window.location.origin}/list/{event.slug}
               </p>
-              <button onClick={copyLink} className="flex items-center gap-1 text-xs text-sagals-dark hover:text-sagals shrink-0">
-                {copied === 'link' ? <CheckCircle size={12} /> : <Copy size={12} />}
-                {copied === 'link' ? 'Copiat!' : 'Copiar'}
-              </button>
+              <div className="flex items-center gap-2 shrink-0">
+                <button onClick={shareLink} className="flex items-center gap-1 text-xs text-sagals-dark hover:text-sagals">
+                  <Share2 size={12} /> Compartir
+                </button>
+                <button onClick={copyLink} className="flex items-center gap-1 text-xs text-sagals-dark hover:text-sagals">
+                  {copied === 'link' ? <CheckCircle size={12} /> : <Copy size={12} />}
+                  {copied === 'link' ? 'Copiat!' : 'Copiar'}
+                </button>
+              </div>
             </div>
           </div>
         )}
