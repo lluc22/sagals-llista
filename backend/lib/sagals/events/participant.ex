@@ -10,6 +10,7 @@ defmodule Sagals.Events.Participant do
     field :transport_raw, :string, default: ""
     field :observations, :string, default: ""
     field :companions, :string, default: ""
+    field :reviewed, :boolean, default: false
 
     belongs_to :event, Sagals.Events.Event
     has_many :participant_trips, Sagals.Events.ParticipantTrip
@@ -19,7 +20,7 @@ defmodule Sagals.Events.Participant do
 
   def changeset(participant, attrs) do
     participant
-    |> cast(attrs, [:first_name, :last_name, :last_name2, :nickname, :transport_raw, :observations, :companions, :event_id])
+    |> cast(attrs, [:first_name, :last_name, :last_name2, :nickname, :transport_raw, :observations, :companions, :reviewed, :event_id])
     |> validate_required([:event_id])
   end
 end

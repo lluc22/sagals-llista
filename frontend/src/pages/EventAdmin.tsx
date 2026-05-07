@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
-import { ArrowLeft, Copy, CheckCircle, Pencil, Trash2, Plus, X, Save, AlertTriangle } from 'lucide-react'
+import { ArrowLeft, Copy, CheckCircle, Pencil, Trash2, Plus, X, Save, AlertTriangle, Users, MessageSquare } from 'lucide-react'
 import { api } from '../lib/api'
 import type { Event, Bus, Participant } from '../types'
 
@@ -42,6 +42,8 @@ export default function EventAdmin() {
   const [newBus, setNewBus] = useState<BusDraft>(EMPTY_BUS)
   const [savingBus, setSavingBus] = useState(false)
 
+  const [showReviewed, setShowReviewed] = useState(false)
+
   const [editingPartId, setEditingPartId] = useState<number | null>(null)
   const [partDraft, setPartDraft] = useState<PartDraft>({ first_name: '', last_name: '', last_name2: '', nickname: '' })
   const [savingPart, setSavingPart] = useState(false)
@@ -81,6 +83,11 @@ export default function EventAdmin() {
   function startEditPart(p: Participant) {
     setEditingPartId(p.id)
     setPartDraft({ first_name: p.first_name, last_name: p.last_name, last_name2: p.last_name2, nickname: p.nickname })
+  }
+
+  async function handleToggleReviewed(p: Participant) {
+    const res = await api.patch<{ data: Participant }>(`/api/participants/${p.id}`, { reviewed: !p.reviewed })
+    setParticipants(prev => prev.map(x => x.id === p.id ? res.data : x))
   }
 
   async function handleSavePart(participantId: number) {
@@ -137,6 +144,9 @@ export default function EventAdmin() {
   const sorted = [...participants].sort((a, b) =>
     `${a.last_name} ${a.first_name}`.localeCompare(`${b.last_name} ${b.first_name}`)
   )
+
+  const needsAttention = sorted.filter(p => (p.companions || p.observations) && !p.reviewed)
+  const alreadyReviewed = sorted.filter(p => (p.companions || p.observations) && p.reviewed)
 
   return (
     <div className="min-h-screen bg-gray-50 p-4">
@@ -198,6 +208,69 @@ export default function EventAdmin() {
             </div>
           )}
 
+          {needsAttention.length > 0 && (
+            <div className="bg-amber-50 border border-amber-100 rounded-lg p-3 mb-3 space-y-2">
+              <p className="text-xs font-medium text-amber-700">Atenció ({needsAttention.length})</p>
+              {needsAttention.map(p => (
+                <div key={p.id} className="flex items-start gap-2">
+                  <div className="flex-1 space-y-0.5">
+                    <p className="text-xs font-medium text-gray-800">{p.first_name} {p.last_name}{p.nickname && ` (${p.nickname})`}</p>
+                    {p.companions && (
+                      <p className="text-xs text-gray-600 flex items-start gap-1">
+                        <Users size={11} className="shrink-0 mt-0.5 text-amber-500" />
+                        {p.companions}
+                      </p>
+                    )}
+                    {p.observations && (
+                      <p className="text-xs text-gray-600 flex items-start gap-1">
+                        <MessageSquare size={11} className="shrink-0 mt-0.5 text-amber-500" />
+                        {p.observations}
+                      </p>
+                    )}
+                  </div>
+                  <button
+                    onClick={() => handleToggleReviewed(p)}
+                    className="shrink-0 text-amber-400 hover:text-green-500 transition-colors mt-0.5"
+                    title="Marcar com a revisat"
+                  >
+                    <CheckCircle size={14} />
+                  </button>
+                </div>
+              ))}
+
+              {alreadyReviewed.length > 0 && (
+                <div className="border-t border-amber-100 pt-2 mt-1">
+                  <button
+                    onClick={() => setShowReviewed(v => !v)}
+                    className="text-xs text-amber-600 hover:text-amber-700 flex items-center gap-1"
+                  >
+                    {showReviewed ? '▾' : '▸'} Revisats ({alreadyReviewed.length})
+                  </button>
+                  {showReviewed && (
+                    <div className="mt-2 space-y-2">
+                      {alreadyReviewed.map(p => (
+                        <div key={p.id} className="flex items-start gap-2 opacity-60">
+                          <div className="flex-1 space-y-0.5">
+                            <p className="text-xs font-medium text-gray-700 line-through">{p.first_name} {p.last_name}{p.nickname && ` (${p.nickname})`}</p>
+                            {p.companions && <p className="text-xs text-gray-500 flex items-start gap-1"><Users size={11} className="shrink-0 mt-0.5" />{p.companions}</p>}
+                            {p.observations && <p className="text-xs text-gray-500 flex items-start gap-1"><MessageSquare size={11} className="shrink-0 mt-0.5" />{p.observations}</p>}
+                          </div>
+                          <button
+                            onClick={() => handleToggleReviewed(p)}
+                            className="shrink-0 text-green-400 hover:text-amber-500 transition-colors mt-0.5"
+                            title="Desmarcar"
+                          >
+                            <CheckCircle size={14} />
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+          )}
+
           {participants.length === 0 ? (
             <div className="text-center py-6">
               <p className="text-sm text-gray-400 mb-4">Cap participant importat encara</p>
@@ -230,8 +303,12 @@ export default function EventAdmin() {
                   ) : (
                     <div className="flex items-center gap-2 py-1.5 px-2 rounded hover:bg-gray-50 group">
                       <div className="flex-1 min-w-0">
-                        <span className="text-sm text-gray-900">{p.first_name} {p.last_name}</span>
-                        {p.nickname && <span className="text-xs text-gray-400 ml-1">({p.nickname})</span>}
+                        <div className="flex items-center gap-1">
+                          <span className="text-sm text-gray-900">{p.first_name} {p.last_name}</span>
+                          {p.nickname && <span className="text-xs text-gray-400">({p.nickname})</span>}
+                          {p.companions && <Users size={11} className="text-amber-400 shrink-0" />}
+                          {p.observations && <MessageSquare size={11} className="text-amber-400 shrink-0" />}
+                        </div>
                         <p className="text-xs text-gray-400 truncate">{tripSummary(p)}</p>
                       </div>
                       <button onClick={() => startEditPart(p)} aria-label={`Editar ${p.first_name} ${p.last_name}`}

@@ -57,6 +57,7 @@ export interface Participant {
   transport_raw: string
   observations: string
   companions: string
+  reviewed: boolean
   trips: ParticipantTrip[]
 }
 

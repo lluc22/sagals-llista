@@ -77,6 +77,7 @@ defmodule SagalsWeb.ParticipantController do
       transport_raw: p.transport_raw,
       observations: p.observations,
       companions: p.companions,
+      reviewed: p.reviewed,
       trips: trips
     }
   end
