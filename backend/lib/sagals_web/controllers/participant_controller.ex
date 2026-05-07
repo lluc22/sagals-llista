@@ -61,7 +61,7 @@ defmodule SagalsWeb.ParticipantController do
         if Map.has_key?(params, "trips") do
           {:ok, _} = Events.replace_participant_trips(p, params["trips"])
         end
-        p = Sagals.Repo.preload(p, :participant_trips, force: true)
+        p = Sagals.Repo.preload(p, [participant_trips: :bus], force: true)
         json(conn, %{data: serialize(p)})
       {:error, cs} ->
         conn |> put_status(:unprocessable_entity) |> json(%{errors: format_errors(cs)})
@@ -76,7 +76,9 @@ defmodule SagalsWeb.ParticipantController do
 
   defp serialize(p) do
     trips = if Ecto.assoc_loaded?(p.participant_trips) do
-      Enum.map(p.participant_trips, fn t ->
+      p.participant_trips
+      |> Enum.sort_by(& &1.bus.departure_time)
+      |> Enum.map(fn t ->
         %{id: t.id, bus_id: t.bus_id, direction: t.direction}
       end)
     else

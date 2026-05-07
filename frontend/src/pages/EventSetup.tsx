@@ -156,7 +156,7 @@ export default function EventSetup() {
           {(['import', 'columns', 'transport'] as Step[]).map((s, i) => (
             <div key={s} className="flex items-center gap-2">
               {i > 0 && <div className="w-6 h-px bg-gray-200" />}
-              <span className={`px-2 py-1 rounded-full font-medium ${step === s ? 'bg-blue-100 text-blue-700' : s < step ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-400'}`}>
+              <span className={`px-2 py-1 rounded-full font-medium ${step === s ? 'bg-sagals-light text-sagals-dark' : s < step ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-400'}`}>
                 {i + 1}. {s === 'import' ? 'Importar' : s === 'columns' ? 'Columnes' : 'Transport'}
               </span>
             </div>
@@ -170,7 +170,7 @@ export default function EventSetup() {
               <Upload size={32} className="mx-auto mb-3 text-gray-400" />
               <p className="text-sm font-medium text-gray-700 mb-1">Importar Excel</p>
               <p className="text-xs text-gray-400 mb-4">Fitxer .xlsx o .csv del Google Forms</p>
-              <label className="cursor-pointer bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium">
+              <label className="cursor-pointer bg-sagals text-white px-4 py-2 rounded-lg text-sm font-medium">
                 Seleccionar fitxer
                 <input type="file" accept=".xlsx,.xls,.csv" onChange={handleFile} className="hidden" />
               </label>
@@ -181,7 +181,7 @@ export default function EventSetup() {
               </div>
             )}
             {error && <p className="text-sm text-red-600">{error}</p>}
-            <button onClick={handleContinueFromImport} className="w-full bg-blue-600 text-white py-3 rounded-xl text-sm font-medium">
+            <button onClick={handleContinueFromImport} className="w-full bg-sagals text-white py-3 rounded-xl text-sm font-medium">
               Continuar →
             </button>
           </div>
@@ -200,7 +200,7 @@ export default function EventSetup() {
                     <select
                       value={mapping[field]}
                       onChange={e => setMapping(prev => ({ ...prev, [field]: Number(e.target.value) }))}
-                      className="flex-1 border border-gray-200 rounded-lg px-2 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className="w-48 shrink-0 border border-gray-200 rounded-lg px-2 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-sagals"
                     >
                       <option value={-1}>— No utilitzar —</option>
                       {headers.map((h, i) => <option key={i} value={i}>{h || `Columna ${i + 1}`}</option>)}
@@ -216,7 +216,7 @@ export default function EventSetup() {
                   <div key={i} className="text-xs text-gray-600 flex gap-2">
                     <span className="font-medium">{row[mapping.firstName]} {row[mapping.lastName]}</span>
                     {mapping.nickname >= 0 && <span className="text-gray-400">({row[mapping.nickname]})</span>}
-                    {mapping.transport >= 0 && <span className="text-blue-600 truncate">{row[mapping.transport]}</span>}
+                    {mapping.transport >= 0 && <span className="text-sagals-dark truncate">{row[mapping.transport]}</span>}
                   </div>
                 ))}
               </div>
@@ -224,7 +224,7 @@ export default function EventSetup() {
             {error && <p className="text-sm text-red-600">{error}</p>}
             <div className="flex gap-3">
               <button onClick={() => setStep('import')} className="flex-1 border border-gray-200 text-gray-700 py-3 rounded-xl text-sm font-medium">← Enrere</button>
-              <button onClick={handleContinueFromColumns} className="flex-1 bg-blue-600 text-white py-3 rounded-xl text-sm font-medium">Continuar →</button>
+              <button onClick={handleContinueFromColumns} className="flex-1 bg-sagals text-white py-3 rounded-xl text-sm font-medium">Continuar →</button>
             </div>
           </div>
         )}
@@ -259,14 +259,14 @@ export default function EventSetup() {
                             <select
                               value={entry.busId}
                               onChange={e => updateBusEntry(val, idx, { busId: Number(e.target.value) })}
-                              className="flex-1 border border-gray-200 rounded px-2 py-1 text-xs"
+                              className="w-36 shrink-0 border border-gray-200 rounded px-2 py-1 text-xs"
                             >
                               {buses.map(b => <option key={b.id} value={b.id}>{b.label}</option>)}
                             </select>
                             <select
                               value={entry.direction}
                               onChange={e => updateBusEntry(val, idx, { direction: e.target.value as TransportBusEntry['direction'] })}
-                              className="flex-1 border border-gray-200 rounded px-2 py-1 text-xs"
+                              className="w-32 shrink-0 border border-gray-200 rounded px-2 py-1 text-xs"
                             >
                               {Object.entries(DIRECTION_LABELS).map(([v, l]) => <option key={v} value={v}>{l}</option>)}
                             </select>
@@ -280,7 +280,7 @@ export default function EventSetup() {
                         <button
                           type="button"
                           onClick={() => addBusEntry(val)}
-                          className="flex items-center gap-1 text-xs text-blue-600 hover:text-blue-700"
+                          className="flex items-center gap-1 text-xs text-sagals-dark hover:text-sagals"
                         >
                           <Plus size={12} /> Afegir bus
                         </button>

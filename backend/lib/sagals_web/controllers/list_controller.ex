@@ -24,7 +24,9 @@ defmodule SagalsWeb.ListController do
           first_name: p.first_name,
           last_name: p.last_name,
           last_name2: p.last_name2,
-          nickname: p.nickname
+          nickname: p.nickname,
+          observations: p.observations,
+          companions: p.companions
         },
         attendance: %{
           id: att.id,

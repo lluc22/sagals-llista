@@ -22,6 +22,12 @@ defmodule Sagals.Accounts do
 
   def delete_user(user), do: Repo.delete(user)
 
+  def update_user(user, attrs) do
+    user
+    |> User.changeset(attrs)
+    |> Repo.update()
+  end
+
   def authenticate_user(email, password) do
     user = Repo.get_by(User, email: email)
 

@@ -1,3 +1,8 @@
+export interface User {
+  id: number
+  email: string
+}
+
 export interface Event {
   id: number
   name: string
@@ -76,6 +81,8 @@ export interface TripWithAttendance {
     last_name: string
     last_name2: string
     nickname: string
+    observations: string
+    companions: string
   }
   attendance: AttendanceRecord
 }

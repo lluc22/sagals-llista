@@ -88,7 +88,7 @@ export default function NewEvent() {
                 value={name}
                 onChange={e => setName(e.target.value)}
                 placeholder="Festa Major Vic 2025"
-                className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-sagals"
                 required
                 autoFocus
               />
@@ -100,7 +100,7 @@ export default function NewEvent() {
                 type="date"
                 value={date}
                 onChange={e => setDate(e.target.value)}
-                className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-sagals"
                 required
               />
             </div>
@@ -112,7 +112,7 @@ export default function NewEvent() {
               <button
                 type="button"
                 onClick={() => setBuses(prev => addBus(prev))}
-                className="flex items-center gap-1 text-sm text-blue-600 hover:text-blue-700"
+                className="flex items-center gap-1 text-sm text-sagals-dark hover:text-sagals"
               >
                 <Plus size={16} /> Afegir bus
               </button>
@@ -145,7 +145,7 @@ export default function NewEvent() {
                       value={bus.label}
                       onChange={e => setBuses(prev => updateBus(prev, i, { label: e.target.value }))}
                       placeholder="Bus 1 · Sortida 8:00h"
-                      className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-sagals"
                       required
                     />
                   </div>
@@ -156,7 +156,7 @@ export default function NewEvent() {
                         type="time"
                         value={bus.departure_time}
                         onChange={e => setBuses(prev => updateBus(prev, i, { departure_time: e.target.value }))}
-                        className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-sagals"
                       />
                     </div>
                     <div>
@@ -164,7 +164,7 @@ export default function NewEvent() {
                       <select
                         value={bus.direction}
                         onChange={e => setBuses(prev => updateBus(prev, i, { direction: e.target.value as BusDraft['direction'] }))}
-                        className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-sagals"
                       >
                         {Object.entries(DIRECTION_LABELS).map(([val, label]) => (
                           <option key={val} value={val}>{label}</option>
@@ -182,7 +182,7 @@ export default function NewEvent() {
           <button
             type="submit"
             disabled={saving}
-            className="w-full bg-blue-600 text-white py-3 rounded-xl text-sm font-medium disabled:opacity-50"
+            className="w-full bg-sagals text-white py-3 rounded-xl text-sm font-medium disabled:opacity-50"
           >
             {saving ? 'Guardant...' : 'Crear actuació i continuar →'}
           </button>

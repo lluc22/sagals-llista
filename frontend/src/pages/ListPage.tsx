@@ -1,5 +1,6 @@
 import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { useParams, useSearchParams } from 'react-router-dom'
+import { Users, MessageSquare } from 'lucide-react'
 import { api } from '../lib/api'
 import { connectSocket, joinAttendanceChannel, disconnectSocket } from '../lib/socket'
 import type { Bus, TripWithAttendance } from '../types'
@@ -54,12 +55,6 @@ function Avatar({
   )
 }
 
-const SECTION_COLORS = {
-  pendent: 'text-yellow-600',
-  present: 'text-green-600',
-  absent:  'text-red-500',
-} as const
-
 function SectionHeader({
   label,
   count,
@@ -71,7 +66,7 @@ function SectionHeader({
   label: string
   count: number
   collapsed: boolean
-  color: keyof typeof SECTION_COLORS
+  color: 'pendent' | 'present' | 'absent'
   stickyTop: number
   onToggle: () => void
 }) {
@@ -79,12 +74,16 @@ function SectionHeader({
     <button
       onClick={onToggle}
       style={{ top: stickyTop }}
-      className="sticky z-[5] w-full flex items-center justify-between pt-3 pb-1.5 px-1 text-left bg-gray-50"
+      className="sticky z-[5] w-full flex items-center justify-between py-2.5 px-1 text-left bg-gray-50"
     >
-      <p className={`text-xs font-semibold uppercase tracking-wide ${SECTION_COLORS[color]}`}>
+      <span className={`text-xs font-semibold px-2.5 py-1 rounded-full ${
+        color === 'pendent' ? 'bg-yellow-100 text-yellow-700' :
+        color === 'present' ? 'bg-green-100 text-green-700' :
+        'bg-red-100 text-red-700'
+      }`}>
         {label} · {count}
-      </p>
-      <span className={`text-xs ${SECTION_COLORS[color]} opacity-50`}>{collapsed ? '▶' : '▼'}</span>
+      </span>
+      <span className={`text-xs text-gray-400`}>{collapsed ? '▶' : '▼'}</span>
     </button>
   )
 }
@@ -116,7 +115,7 @@ function TripRow({
       onClick={onToggle}
       className={`rounded-xl border cursor-pointer select-none transition-colors ${
         isActive
-          ? 'bg-white border-blue-300 shadow-sm'
+          ? 'bg-white border-sagals shadow-sm'
           : cur === 'present' ? 'bg-green-50 border-green-200'
           : cur === 'absent'  ? 'bg-red-50 border-red-200'
           : 'bg-white border-gray-100'
@@ -133,6 +132,20 @@ function TripRow({
           <p className="font-medium text-gray-900 text-sm truncate">
             {participantName(t.participant)}
           </p>
+          {(t.participant.companions || t.participant.observations) && (
+            <div className="flex items-center gap-2 mt-0.5">
+              {t.participant.companions && (
+                <span className="text-xs text-amber-600 flex items-center gap-0.5 truncate">
+                  <Users size={10} className="shrink-0" />{t.participant.companions}
+                </span>
+              )}
+              {t.participant.observations && (
+                <span className="text-xs text-amber-600 flex items-center gap-0.5 truncate">
+                  <MessageSquare size={10} className="shrink-0" />{t.participant.observations}
+                </span>
+              )}
+            </div>
+          )}
         </div>
         <span className={`text-xs font-medium shrink-0 ${
           cur === 'present' ? 'text-green-700' :
@@ -345,7 +358,7 @@ export default function ListPage() {
     return (
       <div className="min-h-screen bg-gray-50 p-4">
         <div className="max-w-lg mx-auto">
-          <h1 className="text-xl font-bold text-gray-900 mb-1">Sagals Llista</h1>
+          <h1 className="text-xl font-bold text-gray-900 mb-1">Passar llista — Sagals d'Osona</h1>
           <p className="text-sm text-gray-500 mb-6">Selecciona el teu bus</p>
           <div className="space-y-3">
             {buses.map(bus => {
@@ -356,7 +369,7 @@ export default function ListPage() {
                 <button
                   key={`${bus.id}-${dir}`}
                   onClick={() => selectBus(bus, dir)}
-                  className="w-full bg-white rounded-xl border border-gray-100 p-4 text-left hover:border-blue-200 transition-colors shadow-sm"
+                  className="w-full bg-white rounded-xl border border-gray-100 p-4 text-left hover:border-sagals-light transition-colors shadow-sm"
                 >
                   <p className="font-semibold text-gray-900">{bus.label}</p>
                   <p className="text-sm text-gray-500">{DIR[dir]}</p>
@@ -393,7 +406,7 @@ export default function ListPage() {
             value={search}
             onChange={e => handleSearch(e.target.value)}
             placeholder="Cercar..."
-            className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-sagals"
           />
         </div>
       </div>

@@ -32,6 +32,11 @@ defmodule Sagals.Events.Event do
     |> change(status: "active", access_token: generate_token())
   end
 
+  def deactivate_changeset(event) do
+    event
+    |> change(status: "draft", access_token: nil)
+  end
+
   defp generate_token do
     :crypto.strong_rand_bytes(32) |> Base.url_encode64(padding: false)
   end

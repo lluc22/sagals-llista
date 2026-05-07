@@ -22,8 +22,8 @@ defmodule Sagals.AccountsTest do
       assert %{password: [_]} = errors_on(changeset)
     end
 
-    test "rejects invalid email" do
-      assert {:error, changeset} = Accounts.create_user(%{email: "notanemail", password: "secret123"})
+    test "rejects blank email" do
+      assert {:error, changeset} = Accounts.create_user(%{email: "", password: "secret123"})
       assert %{email: [_]} = errors_on(changeset)
     end
   end

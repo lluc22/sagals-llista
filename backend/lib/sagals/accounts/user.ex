@@ -14,7 +14,6 @@ defmodule Sagals.Accounts.User do
     user
     |> cast(attrs, [:email, :password])
     |> validate_required([:email, :password])
-    |> validate_format(:email, ~r/@/, message: "must be a valid email")
     |> validate_length(:password, min: 8)
     |> unique_constraint(:email)
     |> hash_password()

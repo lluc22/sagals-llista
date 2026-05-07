@@ -38,6 +38,16 @@ defmodule Sagals.Events do
     |> Repo.update()
   end
 
+  def deactivate_event(event) do
+    event
+    |> Event.deactivate_changeset()
+    |> Repo.update()
+  end
+
+  def delete_event(event) do
+    Repo.delete(event)
+  end
+
   # --- Buses ---
 
   def list_buses(event) do

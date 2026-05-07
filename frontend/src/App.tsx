@@ -5,6 +5,7 @@ import EventList from './pages/EventList'
 import NewEvent from './pages/NewEvent'
 import EventSetup from './pages/EventSetup'
 import EventAdmin from './pages/EventAdmin'
+import UserAdmin from './pages/UserAdmin'
 import ListPage from './pages/ListPage'
 
 function RequireAuth({ children }: { children: React.ReactNode }) {
@@ -20,6 +21,7 @@ export default function App() {
         <Route path="/events/new" element={<RequireAuth><NewEvent /></RequireAuth>} />
         <Route path="/events/:id/setup" element={<RequireAuth><EventSetup /></RequireAuth>} />
         <Route path="/events/:id/admin" element={<RequireAuth><EventAdmin /></RequireAuth>} />
+        <Route path="/users" element={<RequireAuth><UserAdmin /></RequireAuth>} />
         <Route path="/list/:slug" element={<ListPage />} />
       </Routes>
     </BrowserRouter>

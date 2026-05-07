@@ -39,6 +39,7 @@ export default function EventAdmin() {
   const [copied, setCopied] = useState<string | null>(null)
   const [confirmReimport, setConfirmReimport] = useState(false)
   const [reimporting, setReimporting] = useState(false)
+  const [confirmDelete, setConfirmDelete] = useState(false)
 
   const [editingBusId, setEditingBusId] = useState<number | null>(null)
   const [busDraft, setBusDraft] = useState<BusDraft>(EMPTY_BUS)
@@ -56,6 +57,7 @@ export default function EventAdmin() {
 
   const [search, setSearch] = useState('')
   const [showAllSections, setShowAllSections] = useState<Set<string>>(new Set())
+  const [showAttention, setShowAttention] = useState(true)
 
   useEffect(() => {
     if (!id) return
@@ -73,6 +75,21 @@ export default function EventAdmin() {
       const res = await api.post<{ data: Event }>(`/api/events/${id}/activate`)
       setEvent(res.data)
     } finally { setActivating(false) }
+  }
+
+  async function handleDeactivate() {
+    if (!id) return
+    setActivating(true)
+    try {
+      const res = await api.post<{ data: Event }>(`/api/events/${id}/deactivate`)
+      setEvent(res.data)
+    } finally { setActivating(false) }
+  }
+
+  async function handleDeleteEvent() {
+    if (!id) return
+    await api.del(`/api/events/${id}`)
+    navigate('/')
   }
 
   async function handleReimport() {
@@ -225,10 +242,23 @@ export default function EventAdmin() {
     arr.push(p)
     sectionMap.set(key, arr)
   }
+  function sectionPriority(key: string): number {
+    if (key === 'Transport propi') return Infinity
+    const times: number[] = []
+    for (const part of key.split(', ')) {
+      const match = part.match(/^(.+) · (Anada|Tornada)$/)
+      if (!match) continue
+      const bus = buses.find(b => b.label === match[1])
+      if (bus?.departure_time) {
+        const [h, m] = bus.departure_time.split(':').map(Number)
+        times.push(h * 60 + m)
+      }
+    }
+    return times.length > 0 ? Math.min(...times) : 0
+  }
+
   const sections = [...sectionMap.entries()].sort(([a], [b]) => {
-    if (a === 'Transport propi') return 1
-    if (b === 'Transport propi') return -1
-    return a.localeCompare(b)
+    return sectionPriority(a) - sectionPriority(b) || a.localeCompare(b)
   })
 
   function BusCheckboxes({ trips, onToggle }: { trips: TripDraft[]; onToggle: (bus_id: number, dir: 'anada' | 'tornada') => void }) {
@@ -242,7 +272,7 @@ export default function EventAdmin() {
               const checked = trips.some(t => t.bus_id === bus.id && t.direction === dir)
               return (
                 <label key={`${bus.id}-${dir}`} className="flex items-center gap-1.5 text-xs cursor-pointer">
-                  <input type="checkbox" checked={checked} onChange={() => onToggle(bus.id, dir)} className="rounded accent-blue-600" />
+                  <input type="checkbox" checked={checked} onChange={() => onToggle(bus.id, dir)} className="rounded accent-sagals" />
                   <span className="text-gray-700">{bus.label} · {DIR[dir]}</span>
                 </label>
               )
@@ -256,7 +286,7 @@ export default function EventAdmin() {
   function PartRow({ p }: { p: Participant }) {
     if (editingPartId === p.id) {
       return (
-        <div className="border border-blue-200 rounded-lg p-3 space-y-2 bg-blue-50 my-1">
+        <div className="border border-sagals rounded-lg p-3 space-y-2 bg-sagals-light my-1">
           <div className="grid grid-cols-2 gap-2">
             {(['first_name', 'last_name', 'last_name2', 'nickname'] as const).map(field => (
               <input key={field} value={partDraft[field]} onChange={e => setPartDraft(prev => ({ ...prev, [field]: e.target.value }))}
@@ -266,7 +296,7 @@ export default function EventAdmin() {
           </div>
           <BusCheckboxes trips={partDraft.trips} onToggle={toggleTrip} />
           <div className="flex gap-2">
-            <button onClick={() => handleSavePart(p.id)} disabled={savingPart} className="flex items-center gap-1 text-xs bg-blue-600 text-white px-3 py-1 rounded-lg disabled:opacity-50">
+            <button onClick={() => handleSavePart(p.id)} disabled={savingPart} className="flex items-center gap-1 text-xs bg-sagals text-white px-3 py-1 rounded-lg disabled:opacity-50">
               <Save size={12} /> Desar
             </button>
             <button onClick={() => setEditingPartId(null)} className="flex items-center gap-1 text-xs text-gray-600 px-3 py-1 rounded-lg border border-gray-200 bg-white">
@@ -280,18 +310,18 @@ export default function EventAdmin() {
       <div className="flex items-center gap-2 py-1.5 px-2 rounded hover:bg-gray-50 group">
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-1">
-            <span className="text-sm text-gray-900">{p.first_name} {p.last_name}</span>
-            {p.nickname && <span className="text-xs text-gray-400">({p.nickname})</span>}
-            {p.companions && <Users size={11} className="text-amber-400 shrink-0" />}
-            {p.observations && <MessageSquare size={11} className="text-amber-400 shrink-0" />}
+            <span className="text-sm text-gray-900">{p.nickname || `${p.first_name} ${p.last_name}`}</span>
+            {(p.nickname) && <span className="text-xs text-gray-400">({p.first_name} {p.last_name})</span>}
+            {p.companions && <span className="text-xs text-amber-600 flex items-center gap-0.5 truncate max-w-[120px]"><Users size={11} className="shrink-0" />{p.companions}</span>}
+            {p.observations && <span className="text-xs text-amber-600 flex items-center gap-0.5 truncate max-w-[120px]"><MessageSquare size={11} className="shrink-0" />{p.observations}</span>}
           </div>
         </div>
         <button onClick={() => startEditPart(p)} aria-label={`Editar ${p.first_name} ${p.last_name}`}
-          className="text-gray-300 hover:text-blue-500 opacity-0 group-hover:opacity-100 transition-opacity">
+          className="text-gray-300 hover:text-sagals md:opacity-0 md:group-hover:opacity-100 transition-opacity">
           <Pencil size={14} />
         </button>
         <button onClick={() => handleDeleteParticipant(p.id)} aria-label={`Eliminar ${p.first_name} ${p.last_name}`}
-          className="text-gray-300 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity">
+          className="text-gray-300 hover:text-red-500 md:opacity-0 md:group-hover:opacity-100 transition-opacity">
           <Trash2 size={14} />
         </button>
       </div>
@@ -320,15 +350,28 @@ export default function EventAdmin() {
           </span>
         </div>
 
-        {/* Activate */}
-        {event.status === 'draft' && (
-          <div className="bg-blue-50 border border-blue-100 rounded-xl p-4">
-            <p className="text-sm text-blue-800 mb-3">Activa l'actuació perquè els llistadors puguin marcar assistència.</p>
-            <button onClick={handleActivate} disabled={activating} className="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium disabled:opacity-50">
-              {activating ? 'Activant...' : 'Activar actuació'}
+        {/* Actions */}
+        <div className="flex items-center gap-4">
+          {event.status === 'draft' && (
+            <button onClick={handleActivate} disabled={activating} className="text-xs text-sagals-dark hover:text-sagals disabled:opacity-50">
+              {activating ? 'Activant...' : 'Activar'}
             </button>
-          </div>
-        )}
+          )}
+          {event.status === 'active' && (
+            <button onClick={handleDeactivate} disabled={activating} className="text-xs text-sagals-dark hover:text-sagals disabled:opacity-50">
+              {activating ? 'Desactivant...' : 'Desactivar'}
+            </button>
+          )}
+          {confirmDelete ? (
+            <span className="flex items-center gap-1.5">
+              <span className="text-xs text-red-600">Segur?</span>
+              <button onClick={handleDeleteEvent} className="text-xs text-red-600 font-medium hover:text-red-800">Sí</button>
+              <button onClick={() => setConfirmDelete(false)} className="text-xs text-gray-400">No</button>
+            </span>
+          ) : (
+            <button onClick={() => setConfirmDelete(true)} className="text-xs text-red-500 hover:text-red-700">Eliminar actuació</button>
+          )}
+        </div>
 
         {/* Participants */}
         <div className="bg-white rounded-xl border border-gray-100 p-4">
@@ -336,11 +379,11 @@ export default function EventAdmin() {
             <h2 className="font-medium text-gray-900">Participants ({participants.length})</h2>
             <div className="flex items-center gap-3">
               <button onClick={() => { setAddingPart(true); setNewPartDraft(EMPTY_PART) }}
-                className="flex items-center gap-1 text-sm text-blue-600 hover:text-blue-700">
+                className="flex items-center gap-1 text-sm text-sagals-dark hover:text-sagals">
                 <Plus size={14} /> Afegir
               </button>
               {participants.length > 0 && !confirmReimport && (
-                <button onClick={() => setConfirmReimport(true)} className="text-xs text-orange-600 hover:text-orange-700">
+                <button onClick={() => setConfirmReimport(true)} className="text-xs text-sagals-dark hover:text-sagals">
                   Reimportar
                 </button>
               )}
@@ -348,12 +391,12 @@ export default function EventAdmin() {
           </div>
 
           {confirmReimport && (
-            <div className="bg-orange-50 border border-orange-100 rounded-lg p-3 mb-3 flex items-start gap-2">
-              <AlertTriangle size={16} className="text-orange-500 shrink-0 mt-0.5" />
+            <div className="bg-sagals-light border border-sagals rounded-lg p-3 mb-3 flex items-start gap-2">
+              <AlertTriangle size={16} className="text-sagals-dark shrink-0 mt-0.5" />
               <div className="flex-1">
-                <p className="text-xs text-orange-800 mb-2">S'esborraran tots els participants. Continuar?</p>
+                <p className="text-xs text-sagals-dark mb-2">S'esborraran tots els participants. Continuar?</p>
                 <div className="flex gap-2">
-                  <button onClick={handleReimport} disabled={reimporting} className="text-xs bg-orange-600 text-white px-3 py-1 rounded-lg disabled:opacity-50">
+                  <button onClick={handleReimport} disabled={reimporting} className="text-xs bg-sagals text-white px-3 py-1 rounded-lg disabled:opacity-50">
                     {reimporting ? 'Esborrant...' : 'Confirmar'}
                   </button>
                   <button onClick={() => setConfirmReimport(false)} className="text-xs text-gray-600 px-3 py-1 rounded-lg border border-gray-200">
@@ -366,7 +409,7 @@ export default function EventAdmin() {
 
           {/* Add participant form */}
           {addingPart && (
-            <div className="border border-blue-200 rounded-lg p-3 space-y-2 bg-blue-50 mb-3">
+            <div className="border border-sagals rounded-lg p-3 space-y-2 bg-sagals-light mb-3">
               <div className="grid grid-cols-2 gap-2">
                 {(['first_name', 'last_name', 'last_name2', 'nickname'] as const).map(field => (
                   <input key={field} value={newPartDraft[field]}
@@ -379,7 +422,7 @@ export default function EventAdmin() {
               <BusCheckboxes trips={newPartDraft.trips} onToggle={toggleNewTrip} />
               <div className="flex gap-2">
                 <button onClick={handleAddPart} disabled={savingPart || !newPartDraft.first_name.trim()}
-                  className="flex items-center gap-1 text-xs bg-blue-600 text-white px-3 py-1 rounded-lg disabled:opacity-50">
+                  className="flex items-center gap-1 text-xs bg-sagals text-white px-3 py-1 rounded-lg disabled:opacity-50">
                   <Save size={12} /> Desar
                 </button>
                 <button onClick={() => setAddingPart(false)}
@@ -393,7 +436,7 @@ export default function EventAdmin() {
           {participants.length === 0 && !addingPart ? (
             <div className="text-center py-6">
               <p className="text-sm text-gray-400 mb-4">Cap participant importat encara</p>
-              <button onClick={() => navigate(`/events/${id}/setup`)} className="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium">
+              <button onClick={() => navigate(`/events/${id}/setup`)} className="bg-sagals text-white px-4 py-2 rounded-lg text-sm font-medium">
                 Importar participants
               </button>
             </div>
@@ -406,63 +449,72 @@ export default function EventAdmin() {
                   value={search}
                   onChange={e => setSearch(e.target.value)}
                   placeholder="Cercar..."
-                  className="w-full border border-gray-200 rounded-lg px-3 py-1.5 text-sm mb-3 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                  className="w-full border border-gray-200 rounded-lg px-3 py-1.5 text-sm mb-3 focus:outline-none focus:ring-1 focus:ring-sagals"
                 />
               )}
 
               {/* Atenció */}
               {(needsAttention.length > 0 || alreadyReviewed.length > 0) && (
-                <div className="bg-amber-50 border border-amber-100 rounded-lg p-3 mb-3 space-y-2">
-                  {needsAttention.length > 0 && <p className="text-xs font-medium text-amber-700">Atenció ({needsAttention.length})</p>}
-                  {needsAttention.map(p => (
-                    <div key={p.id} className="flex items-start gap-2">
-                      <div className="flex-1 space-y-0.5">
-                        <p className="text-xs font-medium text-gray-800">{p.first_name} {p.last_name}{p.nickname && ` (${p.nickname})`}</p>
-                        {p.companions && (
-                          <p className="text-xs text-gray-600 flex items-start gap-1">
-                            <Users size={11} className="shrink-0 mt-0.5 text-amber-500" />
-                            {p.companions}
-                          </p>
-                        )}
-                        {p.observations && (
-                          <p className="text-xs text-gray-600 flex items-start gap-1">
-                            <MessageSquare size={11} className="shrink-0 mt-0.5 text-amber-500" />
-                            {p.observations}
-                          </p>
-                        )}
-                      </div>
-                      <button onClick={() => handleToggleReviewed(p)}
-                        className="shrink-0 text-amber-400 hover:text-green-500 transition-colors mt-0.5" title="Marcar com a revisat">
-                        <CheckCircle size={14} />
-                      </button>
-                    </div>
-                  ))}
-
-                  {alreadyReviewed.length > 0 && (
-                    <div className={needsAttention.length > 0 ? 'border-t border-amber-100 pt-2 mt-1' : ''}>
-                      {needsAttention.length > 0 && (
-                        <button onClick={() => setShowReviewed(v => !v)}
-                          className="text-xs text-amber-600 hover:text-amber-700 flex items-center gap-1 mb-2">
-                          {showReviewed ? '▾' : '▸'} Revisats ({alreadyReviewed.length})
-                        </button>
-                      )}
-                      {(needsAttention.length === 0 || showReviewed) && (
-                        <div className="space-y-2">
-                          {alreadyReviewed.map(p => (
-                            <div key={p.id} className="flex items-start gap-2 opacity-60">
-                              <div className="flex-1 space-y-0.5">
-                                <p className="text-xs font-medium text-gray-700 line-through">{p.first_name} {p.last_name}{p.nickname && ` (${p.nickname})`}</p>
-                                {p.companions && <p className="text-xs text-gray-500 flex items-start gap-1"><Users size={11} className="shrink-0 mt-0.5" />{p.companions}</p>}
-                                {p.observations && <p className="text-xs text-gray-500 flex items-start gap-1"><MessageSquare size={11} className="shrink-0 mt-0.5" />{p.observations}</p>}
-                              </div>
-                              <button onClick={() => handleToggleReviewed(p)}
-                                className="shrink-0 text-green-400 hover:text-amber-500 transition-colors mt-0.5" title="Desmarcar">
-                                <CheckCircle size={14} />
-                              </button>
-                            </div>
-                          ))}
+                <div className="bg-amber-50 border border-amber-100 rounded-lg p-3 mb-3">
+                  <button onClick={() => setShowAttention(v => !v)} className="w-full flex items-center justify-between">
+                    <p className="text-xs font-medium text-amber-700">Atenció ({needsAttention.length})</p>
+                    <span className="text-xs text-amber-500">{showAttention ? '▼' : '▶'}</span>
+                  </button>
+                  {showAttention && (
+                    <div className="space-y-2 mt-2">
+                      {needsAttention.map(p => (
+                        <div key={p.id} className="flex items-start gap-2">
+                          <div className="flex-1 space-y-0.5">
+                            <p className="text-xs font-medium text-gray-800">{p.nickname || `${p.first_name} ${p.last_name}`}{p.nickname && ` (${p.first_name} ${p.last_name})`}</p>
+                            {p.companions && (
+                              <p className="text-xs text-gray-600 flex items-start gap-1">
+                                <Users size={11} className="shrink-0 mt-0.5 text-amber-500" />
+                                {p.companions}
+                              </p>
+                            )}
+                            {p.observations && (
+                              <p className="text-xs text-gray-600 flex items-start gap-1">
+                                <MessageSquare size={11} className="shrink-0 mt-0.5 text-amber-500" />
+                                {p.observations}
+                              </p>
+                            )}
+                          </div>
+                          <button onClick={() => handleToggleReviewed(p)}
+                            className="shrink-0 text-amber-400 hover:text-green-500 transition-colors mt-0.5" title="Marcar com a revisat">
+                            <CheckCircle size={14} />
+                          </button>
                         </div>
+                      ))}
+                      {needsAttention.length === 0 && (
+                        <p className="text-xs text-amber-400">Tot revisat ✓</p>
                       )}
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {alreadyReviewed.length > 0 && (
+                <div className="bg-amber-50 border border-amber-100 rounded-lg p-3 mb-3">
+                  <div className="w-full flex items-center justify-between">
+                    <button onClick={() => setShowReviewed(v => !v)} className="text-xs text-amber-600 hover:text-amber-700 flex items-center gap-1">
+                      {showReviewed ? '▾' : '▸'} Revisats ({alreadyReviewed.length})
+                    </button>
+                  </div>
+                  {showReviewed && (
+                    <div className="space-y-2 mt-2">
+                      {alreadyReviewed.map(p => (
+                        <div key={p.id} className="flex items-start gap-2 opacity-60">
+                          <div className="flex-1 space-y-0.5">
+                            <p className="text-xs font-medium text-gray-700 line-through">{p.nickname || `${p.first_name} ${p.last_name}`}{p.nickname && ` (${p.first_name} ${p.last_name})`}</p>
+                            {p.companions && <p className="text-xs text-gray-500 flex items-start gap-1"><Users size={11} className="shrink-0 mt-0.5" />{p.companions}</p>}
+                            {p.observations && <p className="text-xs text-gray-500 flex items-start gap-1"><MessageSquare size={11} className="shrink-0 mt-0.5" />{p.observations}</p>}
+                          </div>
+                          <button onClick={() => handleToggleReviewed(p)}
+                            className="shrink-0 text-green-400 hover:text-amber-500 transition-colors mt-0.5" title="Desmarcar">
+                            <CheckCircle size={14} />
+                          </button>
+                        </div>
+                      ))}
                     </div>
                   )}
                 </div>
@@ -472,13 +524,17 @@ export default function EventAdmin() {
               {filtered.length === 0 && search ? (
                 <p className="text-center text-sm text-gray-400 py-4">Cap resultat per "{search}"</p>
               ) : (
-                <div className="space-y-4">
-                  {sections.map(([sectionKey, sectionParts]) => {
+                <div className="space-y-0">
+                  {sections.map(([sectionKey, sectionParts], idx) => {
                     const expanded = search.length > 0 || showAllSections.has(sectionKey)
                     const visible = expanded ? sectionParts : sectionParts.slice(0, SECTION_LIMIT)
                     return (
-                      <div key={sectionKey}>
-                        <p className="text-xs font-medium text-gray-400 uppercase tracking-wide px-2 mb-0.5">{sectionKey}</p>
+                      <div key={sectionKey} className={idx > 0 ? 'border-t border-gray-100 pt-4 mt-4' : ''}>
+                        <div className="flex items-center gap-2 px-2 mb-2">
+                          <div className="flex-1 h-px bg-gray-100" />
+                          <span className="text-xs font-semibold text-gray-500 bg-gray-100 px-2.5 py-1 rounded-full">{sectionKey}</span>
+                          <div className="flex-1 h-px bg-gray-100" />
+                        </div>
                         <div className="space-y-0.5">
                           {visible.map(p => <PartRow key={p.id} p={p} />)}
                         </div>
@@ -489,7 +545,7 @@ export default function EventAdmin() {
                               next.has(sectionKey) ? next.delete(sectionKey) : next.add(sectionKey)
                               return next
                             })}
-                            className="text-xs text-blue-600 hover:text-blue-700 mt-1 px-2">
+                            className="text-xs text-sagals-dark hover:text-sagals mt-1 px-2">
                             {showAllSections.has(sectionKey) ? `Amaga` : `Mostra tots (${sectionParts.length})`}
                           </button>
                         )}
@@ -506,7 +562,7 @@ export default function EventAdmin() {
         <div className="bg-white rounded-xl border border-gray-100 p-4">
           <div className="flex items-center justify-between mb-3">
             <h2 className="font-medium text-gray-900">Busos</h2>
-            <button onClick={() => { setAddingBus(true); setNewBus(EMPTY_BUS) }} className="flex items-center gap-1 text-sm text-blue-600 hover:text-blue-700">
+            <button onClick={() => { setAddingBus(true); setNewBus(EMPTY_BUS) }} className="flex items-center gap-1 text-sm text-sagals-dark hover:text-sagals">
               <Plus size={14} /> Afegir bus
             </button>
           </div>
@@ -515,7 +571,7 @@ export default function EventAdmin() {
             {buses.map(bus => (
               <div key={bus.id}>
                 {editingBusId === bus.id ? (
-                  <div className="border border-blue-200 rounded-lg p-3 space-y-2 bg-blue-50 my-1">
+                  <div className="border border-sagals rounded-lg p-3 space-y-2 bg-sagals-light my-1">
                     <input value={busDraft.label} onChange={e => setBusDraft(prev => ({ ...prev, label: e.target.value }))}
                       placeholder="Bus 1 · Sortida 8:00h" className="w-full border border-gray-200 rounded px-2 py-1 text-sm bg-white" />
                     <div className="grid grid-cols-2 gap-2">
@@ -527,7 +583,7 @@ export default function EventAdmin() {
                       </select>
                     </div>
                     <div className="flex gap-2">
-                      <button onClick={() => handleSaveBus(bus.id)} disabled={savingBus} className="flex items-center gap-1 text-xs bg-blue-600 text-white px-3 py-1 rounded-lg disabled:opacity-50">
+                      <button onClick={() => handleSaveBus(bus.id)} disabled={savingBus} className="flex items-center gap-1 text-xs bg-sagals text-white px-3 py-1 rounded-lg disabled:opacity-50">
                         <Save size={12} /> Desar
                       </button>
                       <button onClick={() => setEditingBusId(null)} className="flex items-center gap-1 text-xs text-gray-600 px-3 py-1 rounded-lg border border-gray-200 bg-white">
@@ -542,11 +598,11 @@ export default function EventAdmin() {
                       <p className="text-xs text-gray-400">{bus.departure_time && `${bus.departure_time} · `}{DIR[bus.direction]}</p>
                     </div>
                     <button onClick={() => { setEditingBusId(bus.id); setBusDraft({ label: bus.label, departure_time: bus.departure_time, direction: bus.direction }) }}
-                      aria-label={`Editar ${bus.label}`} className="text-gray-300 hover:text-blue-500 opacity-0 group-hover:opacity-100 transition-opacity">
+                      aria-label={`Editar ${bus.label}`} className="text-gray-300 hover:text-sagals md:opacity-0 md:group-hover:opacity-100 transition-opacity">
                       <Pencil size={14} />
                     </button>
                     <button onClick={() => handleDeleteBus(bus.id)} aria-label={`Eliminar ${bus.label}`}
-                      className="text-gray-300 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity">
+                      className="text-gray-300 hover:text-red-500 md:opacity-0 md:group-hover:opacity-100 transition-opacity">
                       <Trash2 size={14} />
                     </button>
                   </div>
@@ -555,7 +611,7 @@ export default function EventAdmin() {
             ))}
 
             {addingBus && (
-              <div className="border border-blue-200 rounded-lg p-3 space-y-2 bg-blue-50 mt-2">
+              <div className="border border-sagals rounded-lg p-3 space-y-2 bg-sagals-light mt-2">
                 <input value={newBus.label} onChange={e => setNewBus(prev => ({ ...prev, label: e.target.value }))}
                   placeholder="Bus 1 · Sortida 8:00h" className="w-full border border-gray-200 rounded px-2 py-1 text-sm bg-white" autoFocus />
                 <div className="grid grid-cols-2 gap-2">
@@ -567,7 +623,7 @@ export default function EventAdmin() {
                   </select>
                 </div>
                 <div className="flex gap-2">
-                  <button onClick={handleAddBus} disabled={savingBus || !newBus.label.trim()} className="flex items-center gap-1 text-xs bg-blue-600 text-white px-3 py-1 rounded-lg disabled:opacity-50">
+                  <button onClick={handleAddBus} disabled={savingBus || !newBus.label.trim()} className="flex items-center gap-1 text-xs bg-sagals text-white px-3 py-1 rounded-lg disabled:opacity-50">
                     <Save size={12} /> Desar
                   </button>
                   <button onClick={() => setAddingBus(false)} className="flex items-center gap-1 text-xs text-gray-600 px-3 py-1 rounded-lg border border-gray-200 bg-white">
@@ -587,7 +643,7 @@ export default function EventAdmin() {
               <p className="text-xs text-gray-500 truncate flex-1 mr-2">
                 {window.location.origin}/list/{event.slug}
               </p>
-              <button onClick={copyLink} className="flex items-center gap-1 text-xs text-blue-600 hover:text-blue-700 shrink-0">
+              <button onClick={copyLink} className="flex items-center gap-1 text-xs text-sagals-dark hover:text-sagals shrink-0">
                 {copied === 'link' ? <CheckCircle size={12} /> : <Copy size={12} />}
                 {copied === 'link' ? 'Copiat!' : 'Copiar'}
               </button>

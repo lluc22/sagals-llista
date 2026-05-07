@@ -41,6 +41,21 @@ defmodule SagalsWeb.EventController do
     end
   end
 
+  def deactivate(conn, %{"event_id" => id}) do
+    event = Events.get_event!(id)
+
+    case Events.deactivate_event(event) do
+      {:ok, event} -> json(conn, %{data: serialize(event)})
+      {:error, cs} -> conn |> put_status(:unprocessable_entity) |> json(%{errors: format_errors(cs)})
+    end
+  end
+
+  def delete(conn, %{"id" => id}) do
+    event = Events.get_event!(id)
+    {:ok, _} = Events.delete_event(event)
+    send_resp(conn, :no_content, "")
+  end
+
   defp serialize(e) do
     %{
       id: e.id,

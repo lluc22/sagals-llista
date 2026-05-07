@@ -1,1 +1,7 @@
 @import "tailwindcss";
+
+@theme {
+  --color-sagals: #E0763A;
+  --color-sagals-dark: #C45F25;
+  --color-sagals-light: #FFF1E8;
+}

@@ -23,8 +23,9 @@ defmodule SagalsWeb.Router do
   scope "/api", SagalsWeb do
     pipe_through [:api, :require_admin]
 
-    resources "/events", EventController, only: [:index, :show, :create, :update] do
+    resources "/events", EventController, only: [:index, :show, :create, :update, :delete] do
       post "/activate", EventController, :activate
+      post "/deactivate", EventController, :deactivate
       resources "/buses", BusController, only: [:index, :create]
       resources "/participants", ParticipantController, only: [:index, :create]
       post "/participants/import", ParticipantController, :import
@@ -32,6 +33,11 @@ defmodule SagalsWeb.Router do
 
     resources "/buses", BusController, only: [:update, :delete]
     resources "/participants", ParticipantController, only: [:update, :delete]
+
+    get "/users", UserController, :index
+    post "/users", UserController, :create
+    put "/users/:id", UserController, :update
+    delete "/users/:id", UserController, :delete
   end
 
   scope "/api/list", SagalsWeb do
