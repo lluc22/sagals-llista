@@ -20,9 +20,7 @@ RUN mix compile
 RUN mix release
 
 # ── runtime ───────────────────────────────────────────────────────────────────
-FROM alpine:3.21
-
-RUN apk add --no-cache libstdc++ openssl ncurses-libs
+FROM elixir:1.18-alpine
 
 WORKDIR /app
 
