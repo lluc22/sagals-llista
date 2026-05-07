@@ -68,8 +68,10 @@ export default function NewEvent() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 p-4">
-      <div className="max-w-lg mx-auto">
+    <div className="min-h-screen bg-gray-50">
+      <div className="h-1 bg-sagals" />
+      <div className="p-4">
+        <div className="max-w-lg mx-auto">
         <button
           onClick={() => navigate('/')}
           className="flex items-center gap-1 text-sm text-gray-500 mb-4 hover:text-gray-700"
@@ -77,10 +79,10 @@ export default function NewEvent() {
           <ArrowLeft size={16} /> Tornar
         </button>
 
-        <h1 className="text-xl font-bold text-gray-900 mb-6">Nova actuació</h1>
+        <h1 className="text-xl font-bold text-sagals mb-6">Nova actuació</h1>
 
         <form onSubmit={handleSubmit} className="space-y-6">
-          <div className="bg-white rounded-xl border border-gray-100 p-4 space-y-4">
+          <div className="bg-white rounded-xl border border-sagals/10 p-4 space-y-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Nom de l'actuació</label>
               <input
@@ -119,14 +121,14 @@ export default function NewEvent() {
             </div>
 
             {buses.length === 0 && (
-              <p className="text-sm text-gray-400 text-center py-6 bg-white rounded-xl border border-dashed border-gray-200">
+              <p className="text-sm text-gray-400 text-center py-6 bg-white rounded-xl border border-dashed border-sagals/20">
                 Cap bus afegit encara
               </p>
             )}
 
             <div className="space-y-3">
               {buses.map((bus, i) => (
-                <div key={i} className="bg-white rounded-xl border border-gray-100 p-4 space-y-3">
+                <div key={i} className="bg-white rounded-xl border border-sagals/10 p-4 space-y-3">
                   <div className="flex items-center justify-between">
                     <span className="text-sm font-medium text-gray-700">Bus {i + 1}</span>
                     <button
@@ -187,6 +189,7 @@ export default function NewEvent() {
             {saving ? 'Guardant...' : 'Crear actuació i continuar →'}
           </button>
         </form>
+        </div>
       </div>
     </div>
   )

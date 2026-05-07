@@ -29,7 +29,7 @@ function Avatar({
   const ring =
     status === 'present' ? 'ring-2 ring-green-500' :
     status === 'absent'  ? 'ring-2 ring-red-500' :
-    'ring-1 ring-gray-200'
+    'ring-2 ring-sagals'
 
   if (photo) {
     return (
@@ -46,7 +46,7 @@ function Avatar({
     <div className={`w-9 h-9 rounded-full flex items-center justify-center text-sm font-bold shrink-0 ${
       status === 'present' ? 'bg-green-500 text-white' :
       status === 'absent'  ? 'bg-red-500 text-white' :
-      'bg-gray-100 text-gray-500'
+      'bg-sagals-light text-sagals-dark'
     }`}>
       {status === 'present' ? '✓' :
        status === 'absent'  ? '✗' :
@@ -76,11 +76,11 @@ function SectionHeader({
       style={{ top: stickyTop }}
       className="sticky z-[5] w-full flex items-center justify-between py-2.5 px-1 text-left bg-gray-50"
     >
-      <span className={`text-xs font-semibold px-2.5 py-1 rounded-full ${
-        color === 'pendent' ? 'bg-yellow-100 text-yellow-700' :
-        color === 'present' ? 'bg-green-100 text-green-700' :
-        'bg-red-100 text-red-700'
-      }`}>
+          <span className={`text-xs font-semibold px-2.5 py-1 rounded-full ${
+            color === 'pendent' ? 'bg-sagals-light text-sagals-dark' :
+            color === 'present' ? 'bg-green-100 text-green-700' :
+            'bg-red-100 text-red-700'
+          }`}>
         {label} · {count}
       </span>
       <span className={`text-xs text-gray-400`}>{collapsed ? '▶' : '▼'}</span>
@@ -91,7 +91,7 @@ function SectionHeader({
 const STATUS_ACTIONS = [
   { status: 'present', label: 'Present',    active: 'bg-green-500 text-white', idle: 'border border-green-300 text-green-700' },
   { status: 'absent',  label: 'Absent',   active: 'bg-red-500 text-white',   idle: 'border border-red-300 text-red-700' },
-  { status: 'pendent', label: 'Pendent', active: 'bg-gray-400 text-white',  idle: 'border border-gray-200 text-gray-500' },
+  { status: 'pendent', label: 'Pendent', active: 'bg-sagals text-white', idle: 'border border-sagals/30 text-sagals-dark' },
 ] as const
 
 function TripRow({
@@ -358,7 +358,7 @@ export default function ListPage() {
     return (
       <div className="min-h-screen bg-gray-50 p-4">
         <div className="max-w-lg mx-auto">
-          <h1 className="text-xl font-bold text-gray-900 mb-1">Passar llista — Sagals d'Osona</h1>
+          <h1 className="text-xl font-bold text-sagals mb-1">Passar llista — Sagals d'Osona</h1>
           <p className="text-sm text-gray-500 mb-6">Selecciona el teu bus</p>
           <div className="space-y-3">
             {buses.map(bus => {
@@ -369,7 +369,7 @@ export default function ListPage() {
                 <button
                   key={`${bus.id}-${dir}`}
                   onClick={() => selectBus(bus, dir)}
-                  className="w-full bg-white rounded-xl border border-gray-100 p-4 text-left hover:border-sagals-light transition-colors shadow-sm"
+                  className="w-full bg-white rounded-xl border border-sagals/20 p-4 text-left hover:border-sagals transition-colors shadow-sm"
                 >
                   <p className="font-semibold text-gray-900">{bus.label}</p>
                   <p className="text-sm text-gray-500">{DIR[dir]}</p>
@@ -387,26 +387,26 @@ export default function ListPage() {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Sticky header with progress */}
-      <div ref={headerRef} className="bg-white border-b border-gray-100 p-4 sticky top-0 z-10">
+      <div ref={headerRef} className="bg-sagals p-4 sticky top-0 z-10">
         <div className="max-w-lg mx-auto">
-          <button onClick={goBack} className="text-sm text-gray-500 hover:text-gray-700 mb-2">
+          <button onClick={goBack} className="text-sm text-white/70 hover:text-white mb-2">
             ← Canviar bus
           </button>
           <div className="flex items-center justify-between mb-0.5">
-            <h1 className="font-bold text-gray-900">{currentBus?.label}</h1>
+            <h1 className="font-bold text-white">{currentBus?.label}</h1>
             <span className={`text-sm font-semibold tabular-nums ${
-              trips.length > 0 && totalPresents === trips.length ? 'text-green-600' : 'text-gray-500'
+              trips.length > 0 && totalPresents === trips.length ? 'text-green-300' : 'text-white/70'
             }`}>
               {totalPresents} / {trips.length}
             </span>
           </div>
-          <p className="text-sm text-gray-500 mb-3">{selectedDirection ? DIR[selectedDirection] : ''}</p>
+          <p className="text-sm text-white/70 mb-3">{selectedDirection ? DIR[selectedDirection] : ''}</p>
           <input
             type="search"
             value={search}
             onChange={e => handleSearch(e.target.value)}
             placeholder="Cercar..."
-            className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-sagals"
+            className="w-full border border-white/20 rounded-lg px-3 py-2 text-sm bg-white/10 text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-white/50"
           />
         </div>
       </div>

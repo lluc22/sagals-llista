@@ -149,7 +149,7 @@ export default function EventSetup() {
         <button onClick={() => navigate('/')} className="flex items-center gap-1 text-sm text-gray-500 mb-4 hover:text-gray-700">
           <ArrowLeft size={16} /> Tornar
         </button>
-        <h1 className="text-xl font-bold text-gray-900 mb-1">{event.name}</h1>
+        <h1 className="text-xl font-bold text-sagals mb-1">{event.name}</h1>
         <p className="text-sm text-gray-500 mb-6">Configuració de la llista</p>
 
         <div className="flex items-center gap-2 mb-6 text-xs">

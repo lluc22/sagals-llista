@@ -80,7 +80,7 @@ export default function UserAdmin() {
           <ArrowLeft size={16} /> Tornar
         </button>
         <div className="flex items-center justify-between">
-          <h1 className="text-xl font-bold text-gray-900">Usuaris admin</h1>
+          <h1 className="text-xl font-bold text-sagals">Usuaris admin</h1>
           <button onClick={() => setAdd(true)} disabled={add}
             className="flex items-center gap-1 text-sm text-sagals-dark hover:text-sagals">
             <UserPlus size={14} /> Afegir

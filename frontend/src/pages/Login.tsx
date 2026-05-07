@@ -25,8 +25,8 @@ export default function Login() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
-      <div className="w-full max-w-sm bg-white rounded-2xl shadow-sm border border-gray-100 p-8">
+    <div className="min-h-screen bg-sagals flex items-center justify-center p-4">
+      <div className="w-full max-w-sm bg-white rounded-2xl shadow-lg p-8">
         <h1 className="text-xl font-bold text-sagals mb-1">Sagals Llista</h1>
         <p className="text-sm text-gray-500 mb-6">Accés administrador</p>
 

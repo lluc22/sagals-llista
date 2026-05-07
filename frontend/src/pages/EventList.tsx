@@ -22,10 +22,12 @@ export default function EventList() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-gray-50 p-4">
-      <div className="max-w-lg mx-auto">
+    <div className="min-h-screen bg-gray-50">
+      <div className="h-1 bg-sagals" />
+      <div className="p-4">
+        <div className="max-w-lg mx-auto">
         <div className="flex items-center justify-between mb-6">
-          <h1 className="text-2xl font-bold text-gray-900">Sagals Llista</h1>
+          <h1 className="text-2xl font-bold text-sagals">Sagals Llista</h1>
           <div className="flex items-center gap-2">
             <Link
               to="/events/new"
@@ -66,7 +68,7 @@ export default function EventList() {
             <Link
               key={event.id}
               to={`/events/${event.id}/admin`}
-              className="block bg-white rounded-xl p-4 shadow-sm border border-gray-100 hover:border-sagals-light transition-colors"
+              className="block bg-white rounded-xl p-4 shadow-sm border border-sagals/10 hover:border-sagals/40 transition-colors"
             >
               <div className="flex items-center justify-between">
                 <div>
@@ -98,6 +100,7 @@ export default function EventList() {
             </Link>
           ))}
         </div>
+      </div>
       </div>
     </div>
   );

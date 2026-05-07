@@ -344,8 +344,10 @@ export default function EventAdmin() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 p-4">
-      <div className="max-w-lg mx-auto space-y-4">
+    <div className="min-h-screen bg-gray-50">
+      <div className="h-1 bg-sagals" />
+      <div className="p-4">
+        <div className="max-w-lg mx-auto space-y-4">
 
         {/* Header */}
         <button onClick={() => navigate('/')} className="flex items-center gap-1 text-sm text-gray-500 hover:text-gray-700">
@@ -353,7 +355,7 @@ export default function EventAdmin() {
         </button>
         <div className="flex items-start justify-between">
           <div>
-            <h1 className="text-xl font-bold text-gray-900">{event.name}</h1>
+            <h1 className="text-xl font-bold text-sagals">{event.name}</h1>
             <p className="text-sm text-gray-500">{new Date(event.date + 'T12:00:00').toLocaleDateString('ca-ES', { day: 'numeric', month: 'long', year: 'numeric' })}</p>
           </div>
           <span className={`text-xs font-medium px-2 py-1 rounded-full ${
@@ -652,10 +654,10 @@ export default function EventAdmin() {
 
         {/* Share link */}
         {event.status === 'active' && event.access_token && (
-          <div className="bg-white rounded-xl border border-gray-100 p-4">
-            <h2 className="font-medium text-gray-900 mb-1">Enllaç de llista</h2>
-            <p className="text-xs text-gray-500 mb-3">Comparteix aquest enllaç públic amb qui vulguis perquè pugui passar llista sense necessitat d'usuari.</p>
-            <div className="flex items-center justify-between bg-gray-50 rounded-lg px-3 py-2">
+          <div className="bg-sagals-light rounded-xl border border-sagals/20 p-4">
+            <h2 className="font-medium text-sagals-dark mb-1">Enllaç de llista</h2>
+            <p className="text-xs text-sagals-dark/70 mb-3">Comparteix aquest enllaç públic amb qui vulguis perquè pugui passar llista sense necessitat d'usuari.</p>
+            <div className="flex items-center justify-between bg-white rounded-lg px-3 py-2 border border-sagals/20">
               <p className="text-xs text-gray-500 truncate flex-1 mr-2">
                 {window.location.origin}/list/{event.slug}
               </p>
@@ -669,9 +671,9 @@ export default function EventAdmin() {
                 </button>
               </div>
             </div>
-          </div>
-        )}
-
+            </div>
+          )}
+        </div>
       </div>
     </div>
   )
