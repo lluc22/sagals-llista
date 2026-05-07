@@ -1,10 +1,14 @@
 :80 {
     handle /api/* {
-        reverse_proxy backend:4000
+        reverse_proxy backend:4000 {
+            header_up X-Forwarded-Proto https
+        }
     }
 
     handle /socket/* {
-        reverse_proxy backend:4000
+        reverse_proxy backend:4000 {
+            header_up X-Forwarded-Proto https
+        }
     }
 
     handle {

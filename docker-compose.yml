@@ -24,6 +24,7 @@ services:
       DATABASE_URL: ecto://sagals:${DB_PASSWORD}@db/sagals_prod
       SECRET_KEY_BASE: ${SECRET_KEY_BASE}
       PHX_SERVER: "true"
+      PHX_HOST: ${PHX_HOST}
       TENIMALETA_API_KEY: ${TENIMALETA_API_KEY}
 
   web:
