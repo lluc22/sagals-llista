@@ -345,27 +345,26 @@ export default function EventAdmin() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <div className="h-1 bg-sagals" />
-      <div className="p-4">
-        <div className="max-w-lg mx-auto space-y-4">
-
-        {/* Header */}
-        <button onClick={() => navigate('/')} className="flex items-center gap-1 text-sm text-gray-500 hover:text-gray-700">
-          <ArrowLeft size={16} /> Tornar
-        </button>
-        <div className="flex items-start justify-between">
-          <div>
-            <h1 className="text-xl font-bold text-sagals">{event.name}</h1>
-            <p className="text-sm text-gray-500">{new Date(event.date + 'T12:00:00').toLocaleDateString('ca-ES', { day: 'numeric', month: 'long', year: 'numeric' })}</p>
+      <div className="bg-sagals px-4 py-3 sticky top-0 z-10">
+        <div className="max-w-lg mx-auto flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <button onClick={() => navigate('/')} className="text-white/70 hover:text-white transition-colors">
+              <ArrowLeft size={18} />
+            </button>
+            <h1 className="text-lg font-bold text-white truncate">{event.name}</h1>
           </div>
           <span className={`text-xs font-medium px-2 py-1 rounded-full ${
-            event.status === 'active' ? 'bg-green-100 text-green-700' :
-            event.status === 'closed' ? 'bg-gray-100 text-gray-500' :
-            'bg-yellow-100 text-yellow-700'
+            event.status === 'active' ? 'bg-white/20 text-white' :
+            event.status === 'closed' ? 'bg-white/10 text-white/70' :
+            'bg-white/20 text-white'
           }`}>
             {STATUS_LABELS[event.status] ?? event.status}
           </span>
         </div>
+      </div>
+      <div className="p-4">
+        <div className="max-w-lg mx-auto space-y-4">
+          <p className="text-sm text-gray-500">{new Date(event.date + 'T12:00:00').toLocaleDateString('ca-ES', { day: 'numeric', month: 'long', year: 'numeric' })}</p>
 
         {/* Actions */}
         <div className="flex items-center gap-4">
@@ -671,9 +670,9 @@ export default function EventAdmin() {
                 </button>
               </div>
             </div>
-            </div>
-          )}
-        </div>
+          </div>
+        )}
+      </div>
       </div>
     </div>
   )

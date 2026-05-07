@@ -144,13 +144,18 @@ export default function EventSetup() {
   if (!event) return <div className="min-h-screen bg-gray-50 flex items-center justify-center text-gray-400">Carregant...</div>
 
   return (
-    <div className="min-h-screen bg-gray-50 p-4">
-      <div className="max-w-lg mx-auto">
-        <button onClick={() => navigate('/')} className="flex items-center gap-1 text-sm text-gray-500 mb-4 hover:text-gray-700">
-          <ArrowLeft size={16} /> Tornar
-        </button>
-        <h1 className="text-xl font-bold text-sagals mb-1">{event.name}</h1>
-        <p className="text-sm text-gray-500 mb-6">Configuració de la llista</p>
+    <div className="min-h-screen bg-gray-50">
+      <div className="bg-sagals px-4 py-3 sticky top-0 z-10">
+        <div className="max-w-lg mx-auto flex items-center gap-2">
+          <button onClick={() => navigate('/')} className="text-white/70 hover:text-white transition-colors">
+            <ArrowLeft size={18} />
+          </button>
+          <h1 className="text-lg font-bold text-white truncate">{event.name}</h1>
+        </div>
+      </div>
+      <div className="p-4">
+        <div className="max-w-lg mx-auto">
+          <p className="text-sm text-gray-500 mb-6">Configuració de la llista</p>
 
         <div className="flex items-center gap-2 mb-6 text-xs">
           {(['import', 'columns', 'transport'] as Step[]).map((s, i) => (
@@ -300,6 +305,7 @@ export default function EventSetup() {
             </div>
           </div>
         )}
+      </div>
       </div>
     </div>
   )

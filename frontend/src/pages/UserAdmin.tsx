@@ -74,18 +74,23 @@ export default function UserAdmin() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 p-4">
-      <div className="max-w-lg mx-auto space-y-4">
-        <button onClick={() => navigate('/')} className="flex items-center gap-1 text-sm text-gray-500 hover:text-gray-700">
-          <ArrowLeft size={16} /> Tornar
-        </button>
-        <div className="flex items-center justify-between">
-          <h1 className="text-xl font-bold text-sagals">Usuaris admin</h1>
+    <div className="min-h-screen bg-gray-50">
+      <div className="bg-sagals px-4 py-3 sticky top-0 z-10">
+        <div className="max-w-lg mx-auto flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <button onClick={() => navigate('/')} className="text-white/70 hover:text-white transition-colors">
+              <ArrowLeft size={18} />
+            </button>
+            <h1 className="text-lg font-bold text-white">Usuaris admin</h1>
+          </div>
           <button onClick={() => setAdd(true)} disabled={add}
-            className="flex items-center gap-1 text-sm text-sagals-dark hover:text-sagals">
+            className="flex items-center gap-1 text-sm text-white/80 hover:text-white disabled:opacity-50">
             <UserPlus size={14} /> Afegir
           </button>
         </div>
+      </div>
+      <div className="p-4">
+        <div className="max-w-lg mx-auto space-y-4">
 
         {error && <p className="text-xs text-red-600 bg-red-50 border border-red-100 rounded-lg p-2">{error}</p>}
 
@@ -169,6 +174,7 @@ export default function UserAdmin() {
             )}
           </div>
         </div>
+      </div>
       </div>
     </div>
   )

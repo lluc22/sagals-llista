@@ -69,17 +69,16 @@ export default function NewEvent() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <div className="h-1 bg-sagals" />
+      <div className="bg-sagals px-4 py-3 sticky top-0 z-10">
+        <div className="max-w-lg mx-auto flex items-center gap-2">
+          <button onClick={() => navigate('/')} className="text-white/70 hover:text-white transition-colors">
+            <ArrowLeft size={18} />
+          </button>
+          <h1 className="text-lg font-bold text-white">Nova actuació</h1>
+        </div>
+      </div>
       <div className="p-4">
         <div className="max-w-lg mx-auto">
-        <button
-          onClick={() => navigate('/')}
-          className="flex items-center gap-1 text-sm text-gray-500 mb-4 hover:text-gray-700"
-        >
-          <ArrowLeft size={16} /> Tornar
-        </button>
-
-        <h1 className="text-xl font-bold text-sagals mb-6">Nova actuació</h1>
 
         <form onSubmit={handleSubmit} className="space-y-6">
           <div className="bg-white rounded-xl border border-sagals/10 p-4 space-y-4">
@@ -189,7 +188,7 @@ export default function NewEvent() {
             {saving ? 'Guardant...' : 'Crear actuació i continuar →'}
           </button>
         </form>
-        </div>
+      </div>
       </div>
     </div>
   )

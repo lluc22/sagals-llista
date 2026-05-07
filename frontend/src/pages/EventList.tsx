@@ -23,34 +23,35 @@ export default function EventList() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <div className="h-1 bg-sagals" />
-      <div className="p-4">
-        <div className="max-w-lg mx-auto">
-        <div className="flex items-center justify-between mb-6">
-          <h1 className="text-2xl font-bold text-sagals">Sagals Llista</h1>
+      <div className="bg-sagals px-4 py-3 sticky top-0 z-10">
+        <div className="max-w-lg mx-auto flex items-center justify-between">
+          <h1 className="text-lg font-bold text-white">Sagals Llista</h1>
           <div className="flex items-center gap-2">
             <Link
               to="/events/new"
-              className="flex items-center gap-2 bg-sagals text-white px-4 py-2 rounded-lg text-sm font-medium"
+              className="flex items-center gap-1 bg-white/20 hover:bg-white/30 text-white px-3 py-1.5 rounded-lg text-sm font-medium transition-colors"
             >
-              <Plus size={16} /> Nova actuació
+              <Plus size={14} /> Nova
             </Link>
             <Link
               to="/users"
-              className="flex items-center justify-center w-9 h-9 text-gray-400 hover:text-gray-600 rounded-lg"
+              className="flex items-center justify-center w-8 h-8 text-white/60 hover:text-white rounded-lg transition-colors"
               title="Usuaris"
             >
-              <Users size={18} />
+              <Users size={16} />
             </Link>
             <button
               onClick={handleLogout}
-              className="flex items-center justify-center w-9 h-9 text-gray-400 hover:text-gray-600 rounded-lg"
+              className="flex items-center justify-center w-8 h-8 text-white/60 hover:text-white rounded-lg transition-colors"
               title="Tancar sessió"
             >
-              <LogOut size={18} />
+              <LogOut size={16} />
             </button>
           </div>
         </div>
+      </div>
+      <div className="p-4">
+        <div className="max-w-lg mx-auto">
 
         {loading && (
           <p className="text-gray-500 text-center py-8">Carregant...</p>
