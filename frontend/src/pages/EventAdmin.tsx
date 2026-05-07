@@ -653,7 +653,8 @@ export default function EventAdmin() {
         {/* Share link */}
         {event.status === 'active' && event.access_token && (
           <div className="bg-white rounded-xl border border-gray-100 p-4">
-            <h2 className="font-medium text-gray-900 mb-3">Enllaç de llista</h2>
+            <h2 className="font-medium text-gray-900 mb-1">Enllaç de llista</h2>
+            <p className="text-xs text-gray-500 mb-3">Comparteix aquest enllaç públic amb qui vulguis perquè pugui passar llista sense necessitat d'usuari.</p>
             <div className="flex items-center justify-between bg-gray-50 rounded-lg px-3 py-2">
               <p className="text-xs text-gray-500 truncate flex-1 mr-2">
                 {window.location.origin}/list/{event.slug}
