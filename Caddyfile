@@ -1,0 +1,9 @@
+:80 {
+    root * /srv
+
+    @backend path /api/* /socket/*
+    reverse_proxy @backend backend:4000
+
+    try_files {path} /index.html
+    file_server
+}

@@ -1,0 +1,41 @@
+services:
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: sagals
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: sagals_prod
+    volumes:
+      - ${DB_DATA_PATH:-./data/postgres}:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U sagals"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build: ./backend
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: ecto://sagals:${DB_PASSWORD}@db/sagals_prod
+      SECRET_KEY_BASE: ${SECRET_KEY_BASE}
+      PHX_SERVER: "true"
+      TENIMALETA_API_KEY: ${TENIMALETA_API_KEY}
+
+  web:
+    build:
+      context: ./frontend
+      args:
+        VITE_API_URL: ""
+    restart: unless-stopped
+    ports:
+      - "8080:80"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+    depends_on:
+      - backend
+

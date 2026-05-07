@@ -1,0 +1,142 @@
+defmodule Sagals.Events do
+  import Ecto.Query
+  alias Sagals.Repo
+  alias Sagals.Events.{Event, Bus, Participant, ParticipantTrip}
+
+  # --- Events ---
+
+  def list_events do
+    Repo.all(from e in Event, order_by: [desc: e.inserted_at])
+  end
+
+  def get_event!(id), do: Repo.get!(Event, id)
+
+  def get_event_by_slug!(slug), do: Repo.get_by!(Event, slug: slug)
+
+  def get_event_by_access_token(token) do
+    case Repo.get_by(Event, access_token: token) do
+      nil -> {:error, :not_found}
+      event -> {:ok, event}
+    end
+  end
+
+  def create_event(attrs) do
+    %Event{}
+    |> Event.changeset(attrs)
+    |> Repo.insert()
+  end
+
+  def update_event(event, attrs) do
+    event
+    |> Event.changeset(attrs)
+    |> Repo.update()
+  end
+
+  def activate_event(event) do
+    event
+    |> Event.activate_changeset()
+    |> Repo.update()
+  end
+
+  # --- Buses ---
+
+  def list_buses(event) do
+    Repo.all(from b in Bus, where: b.event_id == ^event.id, order_by: b.order)
+  end
+
+  def get_bus!(id), do: Repo.get!(Bus, id)
+
+  def create_bus(event, attrs) do
+    %Bus{}
+    |> Bus.changeset(stringify_merge(attrs, %{event_id: event.id}))
+    |> Repo.insert()
+  end
+
+  def update_bus(bus, attrs) do
+    bus
+    |> Bus.changeset(attrs)
+    |> Repo.update()
+  end
+
+  def delete_bus(bus), do: Repo.delete(bus)
+
+  # --- Participants ---
+
+  def list_participants(event) do
+    Repo.all(from p in Participant, where: p.event_id == ^event.id, order_by: [p.last_name, p.first_name])
+  end
+
+  def list_participants_with_trips(event) do
+    Repo.all(
+      from p in Participant,
+        where: p.event_id == ^event.id,
+        preload: [participant_trips: :bus],
+        order_by: [p.last_name, p.first_name]
+    )
+  end
+
+  def get_participant!(id), do: Repo.get!(Participant, id)
+
+  def update_participant(participant, attrs) do
+    participant
+    |> Participant.changeset(attrs)
+    |> Repo.update()
+  end
+
+  def delete_participant(participant), do: Repo.delete(participant)
+
+  def import_participants(event, rows, transport_mapping) do
+    Repo.transaction(fn ->
+      Enum.each(rows, fn row ->
+        {:ok, participant} =
+          %Participant{}
+          |> Participant.changeset(stringify_merge(row, %{event_id: event.id}))
+          |> Repo.insert()
+
+        trips = build_trips(participant.id, row.transport_raw, transport_mapping)
+        Enum.each(trips, &Repo.insert!(&1))
+      end)
+
+      length(rows)
+    end)
+  end
+
+  defp build_trips(participant_id, transport_raw, transport_mapping) do
+    rule = Map.get(transport_mapping, transport_raw)
+
+    if is_nil(rule) || !rule["usesBus"] do
+      []
+    else
+      Enum.flat_map(rule["buses"], fn entry ->
+        bus_id = if is_integer(entry["busId"]), do: entry["busId"], else: String.to_integer(entry["busId"])
+        directions = expand_direction(entry["direction"])
+
+        Enum.map(directions, fn dir ->
+          ParticipantTrip.changeset(%ParticipantTrip{}, %{
+            participant_id: participant_id,
+            bus_id: bus_id,
+            direction: dir
+          })
+        end)
+      end)
+    end
+  end
+
+  defp expand_direction("ambdues"), do: ["anada", "tornada"]
+  defp expand_direction(dir), do: [dir]
+
+  defp stringify_merge(base, extras) do
+    stringified = Map.new(base, fn {k, v} -> {to_string(k), v} end)
+    Map.merge(stringified, Map.new(extras, fn {k, v} -> {to_string(k), v} end))
+  end
+
+  # --- Participant Trips ---
+
+  def list_trips_for_bus(bus_id, direction) do
+    Repo.all(
+      from pt in ParticipantTrip,
+        where: pt.bus_id == ^bus_id and pt.direction == ^direction,
+        preload: [:participant, :attendance]
+    )
+  end
+end

@@ -1,0 +1,25 @@
+# Secrets
+.env
+
+# PocketBase data
+pb_data/
+
+# Elixir / Phoenix
+backend/_build/
+backend/deps/
+backend/.elixir_ls/
+backend/priv/plts/
+backend/*.ez
+
+# Frontend
+frontend/node_modules/
+frontend/dist/
+frontend/.vite/
+
+# Go
+go/bin/
+
+# Editor
+.DS_Store
+.vscode/
+*.swp
