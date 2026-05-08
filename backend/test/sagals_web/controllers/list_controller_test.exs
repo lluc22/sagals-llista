@@ -78,4 +78,189 @@ defmodule SagalsWeb.ListControllerTest do
       assert resp["base64"] == "data:image/jpeg;base64,abc123"
     end
   end
+
+  describe "GET /api/list/buses" do
+    test "returns 401 without token", %{conn: conn} do
+      conn |> get("/api/list/buses") |> json_response(401)
+    end
+
+    test "returns buses for the event", %{conn: conn} do
+      {:ok, event} =
+        Events.create_event(%{
+          name: "Bus Test",
+          date: ~D[2025-03-15],
+          slug: "bus-test-#{System.unique_integer()}"
+        })
+
+      {:ok, activated} = Events.activate_event(event)
+
+      {:ok, bus1} =
+        Events.create_bus(activated, %{label: "Bus Vic", direction: "anada", order: 1})
+
+      {:ok, _bus2} =
+        Events.create_bus(activated, %{label: "Bus Girona", direction: "tornada", order: 2})
+
+      token = Auth.generate_list_token(activated.id)
+      conn = put_req_header(conn, "authorization", "Bearer #{token}")
+
+      resp = conn |> get("/api/list/buses") |> json_response(200)
+
+      assert length(resp["data"]) == 2
+      bus_vic = Enum.find(resp["data"], &(&1["label"] == "Bus Vic"))
+      assert bus_vic["direction"] == "anada"
+      assert bus_vic["id"] == bus1.id
+    end
+  end
+
+  describe "GET /api/list/buses/:bus_id/:direction" do
+    test "returns 401 without token", %{conn: conn} do
+      conn |> get("/api/list/buses/1/anada") |> json_response(401)
+    end
+
+    test "returns participants for a bus direction", %{conn: conn} do
+      {:ok, event} =
+        Events.create_event(%{
+          name: "List Test",
+          date: ~D[2025-03-15],
+          slug: "list-test-#{System.unique_integer()}"
+        })
+
+      {:ok, activated} = Events.activate_event(event)
+      {:ok, bus} = Events.create_bus(activated, %{label: "Bus Vic", direction: "anada", order: 1})
+
+      {:ok, p} =
+        Events.create_participant(activated, %{
+          first_name: "Anna",
+          last_name: "Vila",
+          nickname: "An",
+          observations: "Necessitaj ajuda",
+          companions: "2"
+        })
+
+      {:ok, _trip} =
+        Events.replace_participant_trips(p, [%{"bus_id" => bus.id, "direction" => "anada"}])
+
+      token = Auth.generate_list_token(activated.id)
+      conn = put_req_header(conn, "authorization", "Bearer #{token}")
+
+      resp = conn |> get("/api/list/buses/#{bus.id}/anada") |> json_response(200)
+
+      assert length(resp["data"]) == 1
+      entry = hd(resp["data"])
+      assert entry["trip_id"]
+      assert entry["participant"]["first_name"] == "Anna"
+      assert entry["participant"]["last_name"] == "Vila"
+      assert entry["participant"]["nickname"] == "An"
+      assert entry["participant"]["observations"] == "Necessitaj ajuda"
+      assert entry["participant"]["companions"] == "2"
+      assert entry["attendance"]["status"] == "pendent"
+    end
+  end
+
+  describe "POST /api/list/attendance" do
+    test "returns 401 without token", %{conn: conn} do
+      conn
+      |> post("/api/list/attendance", %{"trip_id" => 1, "status" => "present"})
+      |> json_response(401)
+    end
+
+    test "marks attendance as present", %{conn: conn} do
+      {:ok, event} =
+        Events.create_event(%{
+          name: "Att Test",
+          date: ~D[2025-03-15],
+          slug: "att-test-#{System.unique_integer()}"
+        })
+
+      {:ok, activated} = Events.activate_event(event)
+      {:ok, bus} = Events.create_bus(activated, %{label: "Bus Vic", direction: "anada", order: 1})
+      {:ok, p} = Events.create_participant(activated, %{first_name: "Pau", last_name: "Serra"})
+
+      {:ok, updated} =
+        Events.replace_participant_trips(p, [%{"bus_id" => bus.id, "direction" => "anada"}])
+
+      trip = hd(updated.participant_trips)
+
+      token = Auth.generate_list_token(activated.id)
+      conn = put_req_header(conn, "authorization", "Bearer #{token}")
+
+      resp =
+        conn
+        |> post("/api/list/attendance", %{
+          "trip_id" => trip.id,
+          "status" => "present",
+          "marked_by" => "checker1"
+        })
+        |> json_response(200)
+
+      assert resp["data"]["status"] == "present"
+      assert resp["data"]["marked_by"] == "checker1"
+      assert resp["data"]["trip_id"] == trip.id
+    end
+
+    test "updates existing attendance", %{conn: conn} do
+      {:ok, event} =
+        Events.create_event(%{
+          name: "Att Update Test",
+          date: ~D[2025-03-15],
+          slug: "att-upd-#{System.unique_integer()}"
+        })
+
+      {:ok, activated} = Events.activate_event(event)
+      {:ok, bus} = Events.create_bus(activated, %{label: "Bus Vic", direction: "anada", order: 1})
+      {:ok, p} = Events.create_participant(activated, %{first_name: "Pau", last_name: "Serra"})
+
+      {:ok, updated} =
+        Events.replace_participant_trips(p, [%{"bus_id" => bus.id, "direction" => "anada"}])
+
+      trip = hd(updated.participant_trips)
+
+      token = Auth.generate_list_token(activated.id)
+      conn = put_req_header(conn, "authorization", "Bearer #{token}")
+
+      conn
+      |> post("/api/list/attendance", %{
+        "trip_id" => trip.id,
+        "status" => "present",
+        "marked_by" => "checker1"
+      })
+
+      resp =
+        conn
+        |> post("/api/list/attendance", %{
+          "trip_id" => trip.id,
+          "status" => "absent",
+          "marked_by" => "checker2"
+        })
+        |> json_response(200)
+
+      assert resp["data"]["status"] == "absent"
+      assert resp["data"]["marked_by"] == "checker2"
+    end
+
+    test "returns 422 for invalid status", %{conn: conn} do
+      {:ok, event} =
+        Events.create_event(%{
+          name: "Att Invalid Test",
+          date: ~D[2025-03-15],
+          slug: "att-inv-#{System.unique_integer()}"
+        })
+
+      {:ok, activated} = Events.activate_event(event)
+      {:ok, bus} = Events.create_bus(activated, %{label: "Bus Vic", direction: "anada", order: 1})
+      {:ok, p} = Events.create_participant(activated, %{first_name: "Pau", last_name: "Serra"})
+
+      {:ok, updated} =
+        Events.replace_participant_trips(p, [%{"bus_id" => bus.id, "direction" => "anada"}])
+
+      trip = hd(updated.participant_trips)
+
+      token = Auth.generate_list_token(activated.id)
+      conn = put_req_header(conn, "authorization", "Bearer #{token}")
+
+      conn
+      |> post("/api/list/attendance", %{"trip_id" => trip.id, "status" => "invalid_status"})
+      |> json_response(422)
+    end
+  end
 end

@@ -54,4 +54,32 @@ defmodule Sagals.AccountsTest do
                Accounts.authenticate_user("nobody@sagals.cat", "any")
     end
   end
+
+  describe "update_password/2" do
+    test "updates user password" do
+      {:ok, user} = Accounts.create_user(%{email: "pw@sagals.cat", password: "oldpassword"})
+
+      assert {:ok, _updated} = Accounts.update_password(user, "newpassword")
+      assert {:ok, _} = Accounts.authenticate_user("pw@sagals.cat", "newpassword")
+    end
+  end
+
+  describe "get_user_by_email/1" do
+    test "returns user when found" do
+      {:ok, user} = Accounts.create_user(%{email: "find@sagals.cat", password: "password123"})
+      assert Accounts.get_user_by_email("find@sagals.cat").id == user.id
+    end
+
+    test "returns nil when not found" do
+      assert Accounts.get_user_by_email("missing@sagals.cat") == nil
+    end
+  end
+
+  describe "get_user!/1" do
+    test "raises when not found" do
+      assert_raise Ecto.NoResultsError, fn ->
+        Accounts.get_user!(999_999)
+      end
+    end
+  end
 end

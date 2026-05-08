@@ -116,6 +116,8 @@ defmodule Sagals.Events do
         })
         |> Repo.insert!()
       end)
+
+      Repo.preload(participant, [participant_trips: :bus], force: true)
     end)
   end
 
@@ -140,12 +142,13 @@ defmodule Sagals.Events do
 
   defp build_trips(participant_id, transport_raw, transport_mapping) do
     trimmed = String.trim(transport_raw)
+
     rule =
       Map.get(transport_mapping, transport_raw) ||
-      Map.get(transport_mapping, trimmed) ||
-      Enum.find_value(transport_mapping, fn {k, v} ->
-        if String.trim(k) == trimmed, do: v
-      end)
+        Map.get(transport_mapping, trimmed) ||
+        Enum.find_value(transport_mapping, fn {k, v} ->
+          if String.trim(k) == trimmed, do: v
+        end)
 
     if is_nil(rule) || !rule["usesBus"] do
       []
