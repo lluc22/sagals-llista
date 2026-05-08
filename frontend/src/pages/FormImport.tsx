@@ -506,17 +506,17 @@ export default function FormImport() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <div className="bg-sagals px-4 py-3 sticky top-0 z-10">
+      <div className="bg-white border-b border-sagals/20 px-4 py-3 sticky top-0 z-10">
         <div className="max-w-lg mx-auto flex items-center gap-2">
           <button onClick={() => {
             if (step === 'questions') setStep('select-form')
             else if (step === 'buses') setStep('questions')
             else if (step === 'transport') setStep(isExistingEvent ? 'questions' : 'buses')
             else navigate(isExistingEvent ? `/events/${existingEventId}/admin` : '/')
-          }} className="text-white/70 hover:text-white transition-colors">
+          }} className="text-gray-400 hover:text-gray-600 transition-colors">
             <ArrowLeft size={18} />
           </button>
-          <h1 className="text-lg font-bold text-white truncate">Importar des de formulari</h1>
+          <h1 className="text-lg font-bold text-gray-900 truncate">Importar des de formulari</h1>
         </div>
       </div>
 

@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
-import { ArrowLeft, Copy, CheckCircle, Pencil, Trash2, Plus, X, Save, AlertTriangle, Users, MessageSquare, Share2, ExternalLink, RefreshCw } from 'lucide-react'
+import { ArrowLeft, Copy, CheckCircle, Pencil, Trash2, Plus, X, Save, AlertTriangle, Users, MessageSquare, Share2, ExternalLink, RefreshCw, Power } from 'lucide-react'
 import { api } from '../lib/api'
 import type { Event, Bus, Participant } from '../types'
 
@@ -356,18 +356,18 @@ export default function EventAdmin() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <div className="bg-sagals px-4 py-3 sticky top-0 z-10">
+      <div className="bg-white border-b border-sagals/20 px-4 py-3 sticky top-0 z-10">
         <div className="max-w-lg mx-auto flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <button onClick={() => navigate('/')} className="text-white/70 hover:text-white transition-colors">
+            <button onClick={() => navigate('/')} className="text-gray-400 hover:text-gray-600 transition-colors">
               <ArrowLeft size={18} />
             </button>
-            <h1 className="text-lg font-bold text-white truncate">{event.name}</h1>
+            <h1 className="text-lg font-bold text-gray-900 truncate">{event.name}</h1>
           </div>
-          <span className={`text-xs font-medium px-2 py-1 rounded-full ${
-            event.status === 'active' ? 'bg-white/20 text-white' :
-            event.status === 'closed' ? 'bg-white/10 text-white/70' :
-            'bg-white/20 text-white'
+          <span className={`text-xs font-medium px-2.5 py-0.5 rounded-full border ${
+            event.status === 'active' ? 'border-green-200 text-green-700 bg-green-50' :
+            event.status === 'closed' ? 'border-gray-200 text-gray-500 bg-gray-50' :
+            'border-gray-200 text-gray-500 bg-gray-50'
           }`}>
             {STATUS_LABELS[event.status] ?? event.status}
           </span>
@@ -380,13 +380,13 @@ export default function EventAdmin() {
         {/* Actions */}
         <div className="flex items-center gap-4">
           {event.status === 'draft' && (
-            <button onClick={handleActivate} disabled={activating} className="text-xs text-sagals-dark hover:text-sagals disabled:opacity-50">
-              {activating ? 'Activant...' : 'Activar'}
+            <button onClick={handleActivate} disabled={activating} className="flex items-center gap-1 text-xs text-sagals-dark hover:text-sagals disabled:opacity-50">
+              <Power size={12} /> {activating ? 'Activant...' : 'Activar'}
             </button>
           )}
           {event.status === 'active' && (
-            <button onClick={handleDeactivate} disabled={activating} className="text-xs text-sagals-dark hover:text-sagals disabled:opacity-50">
-              {activating ? 'Desactivant...' : 'Desactivar'}
+            <button onClick={handleDeactivate} disabled={activating} className="flex items-center gap-1 text-xs text-sagals-dark hover:text-sagals disabled:opacity-50">
+              <Power size={12} /> {activating ? 'Desactivant...' : 'Desactivar'}
             </button>
           )}
           {confirmDelete ? (
@@ -396,7 +396,9 @@ export default function EventAdmin() {
               <button onClick={() => setConfirmDelete(false)} className="text-xs text-gray-400">No</button>
             </span>
           ) : (
-            <button onClick={() => setConfirmDelete(true)} className="text-xs text-red-500 hover:text-red-700">Eliminar actuació</button>
+            <button onClick={() => setConfirmDelete(true)} className="flex items-center gap-1 text-xs text-red-500 hover:text-red-700">
+              <Trash2 size={12} /> Eliminar actuació
+            </button>
           )}
         </div>
 
@@ -415,8 +417,8 @@ export default function EventAdmin() {
                 </button>
               )}
               {participants.length > 0 && !confirmReimport && (
-                <button onClick={() => setConfirmReimport(true)} className="text-xs text-red-500 hover:text-red-700">
-                  Esborrar participants
+                <button onClick={() => setConfirmReimport(true)} className="flex items-center gap-1 text-xs text-red-500 hover:text-red-700">
+                  <Trash2 size={12} /> Esborrar participants
                 </button>
               )}
             </div>

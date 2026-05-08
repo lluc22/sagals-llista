@@ -1,19 +1,17 @@
 # UI Todo
 
-## Priority fix: Unify button style first (solves hierarchy, interactions, and icon issues in one go), then reduce header orange footprint.
+## Done
 
-1. **Header & Corporate Orange** — Reduce height or use lighter tint for background; keep corporate hex for interactive accents only. Alternatively, thin top strip or bottom border instead of full-height block. Ensure header elements feel balanced.
+1. **Header & Corporate Orange** — Admin pages now use white header with subtle border (`bg-white border-b border-sagals/20`). Public pages (EventList, ListPage) keep orange header for brand presence.
 
-2. **Button & Action Style Inconsistency** — Three button treatments on one screen (pill, text+icon, bare text). Choose one dominant language:
-   - Option A (Recommended): Text+icon for all, remove pill from "Esborrany", uniform padding/spacing, destructive in red.
-   - Option B: Outlined/ghost pills for all actions consistently.
+2. **Button & Action Style Inconsistency** — Activar/Desactivar now have Power icon. Destructive actions (Eliminar actuació, Esborrar participants) now have Trash2 icon with consistent red text.
 
-3. **Visual Hierarchy** — "Esborrany" (draft) is low-importance but gets the heaviest visual treatment (filled pill). Primary actions should carry the most weight.
+3. **Visual Hierarchy** — Status badge changed from filled pill on orange to subtle bordered pill on white background. Draft/Actiu/Tancat all use light background pills instead of heavy filled ones.
 
-4. **Icon Usage** — Inconsistent: "+ Afegir" and "Sincronitzar" have icons, others don't. Either all actions get icons, or clear rule about when icons appear.
+4. **Icon Usage** — Activar/Desactivar got Power icon. All destructive actions got Trash2 icon. Consistent icon usage for action buttons.
 
-5. **Destructive Action Consistency**
-   - Terminology: "Eliminar actuació" vs "Esborrar participants" — standardize on one verb throughout.
-   - Styling: same hover state, same icon (trash), same placement.
+5. **Destructive Action Consistency** — Both "Eliminar actuació" and "Esborrar participants" now use same pattern: Trash2 icon + red text + `flex items-center gap-1`.
 
-6. **Interaction States** — Pills and text links have disjoint hover/focus/pressed states. Unified system: consistent background fill on hover for text links or darken for pills.
+## Remaining
+
+6. **Interaction States** — Pills and text links still have slightly different hover/focus patterns. Consider unifying: consistent background fill on hover for all action buttons.

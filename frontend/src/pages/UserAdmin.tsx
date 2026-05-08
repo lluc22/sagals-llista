@@ -75,13 +75,13 @@ export default function UserAdmin() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <div className="bg-sagals px-4 py-3 sticky top-0 z-10">
+      <div className="bg-white border-b border-sagals/20 px-4 py-3 sticky top-0 z-10">
         <div className="max-w-lg mx-auto flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <button onClick={() => navigate('/')} className="text-white/70 hover:text-white transition-colors">
+            <button onClick={() => navigate('/')} className="text-gray-400 hover:text-gray-600 transition-colors">
               <ArrowLeft size={18} />
             </button>
-            <h1 className="text-lg font-bold text-white">Usuaris admin</h1>
+            <h1 className="text-lg font-bold text-gray-900">Usuaris admin</h1>
           </div>
           <button onClick={() => setAdd(true)} disabled={add}
             className="flex items-center gap-1 text-sm text-white/80 hover:text-white disabled:opacity-50">
