@@ -382,26 +382,26 @@ export default function ListPage() {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Sticky header with progress */}
-      <div ref={headerRef} className="bg-sagals p-4 sticky top-0 z-10">
+      <div ref={headerRef} className="bg-sagals-light border-b border-sagals/20 p-4 sticky top-0 z-10">
         <div className="max-w-lg mx-auto">
-          <button onClick={goBack} className="text-sm text-white/70 hover:text-white mb-2">
+          <button onClick={goBack} className="text-sm text-gray-400 hover:text-gray-600 mb-2">
             ← Canviar bus
           </button>
           <div className="flex items-center justify-between mb-0.5">
-            <h1 className="font-bold text-white">{currentBus?.label}</h1>
+            <h1 className="font-bold text-gray-900">{currentBus?.label}</h1>
             <span className={`text-sm font-semibold tabular-nums ${
-              trips.length > 0 && totalPresents === trips.length ? 'text-green-300' : 'text-white/70'
+              trips.length > 0 && totalPresents === trips.length ? 'text-green-600' : 'text-gray-400'
             }`}>
               {totalPresents} / {trips.length}
             </span>
           </div>
-          <p className="text-sm text-white/70 mb-3">{selectedDirection ? DIR[selectedDirection] : ''}</p>
+          <p className="text-sm text-gray-500 mb-3">{selectedDirection ? DIR[selectedDirection] : ''}</p>
           <input
             type="search"
             value={search}
             onChange={e => handleSearch(e.target.value)}
             placeholder="Cercar..."
-            className="w-full border border-white/20 rounded-lg px-3 py-2 text-sm bg-white/10 text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-white/50"
+            className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm bg-white text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-sagals"
           />
         </div>
       </div>

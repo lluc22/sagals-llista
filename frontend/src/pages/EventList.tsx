@@ -23,26 +23,29 @@ export default function EventList() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <div className="bg-sagals px-4 py-3 sticky top-0 z-10">
+      <div className="bg-sagals-light border-b border-sagals/20 px-4 py-3 sticky top-0 z-10">
         <div className="max-w-lg mx-auto flex items-center justify-between">
-          <h1 className="text-lg font-bold text-white">Sagals Llista</h1>
+          <div className="flex items-center gap-2">
+            <div className="w-1 h-5 bg-sagals rounded-full" />
+            <h1 className="text-lg font-bold text-gray-900">Sagals Llista</h1>
+          </div>
           <div className="flex items-center gap-2">
             <Link
               to="/events/new"
-              className="flex items-center gap-1 bg-white/20 hover:bg-white/30 text-white px-3 py-1.5 rounded-lg text-sm font-medium transition-colors"
+              className="flex items-center gap-1 bg-sagals text-white px-3 py-1.5 rounded-lg text-sm font-medium hover:bg-sagals-dark transition-colors"
             >
               <Plus size={14} /> Nova
             </Link>
             <Link
               to="/users"
-              className="flex items-center justify-center w-8 h-8 text-white/60 hover:text-white rounded-lg transition-colors"
+              className="flex items-center justify-center w-8 h-8 text-gray-400 hover:text-sagals hover:bg-sagals/5 rounded-lg transition-colors"
               title="Usuaris"
             >
               <Users size={16} />
             </Link>
             <button
               onClick={handleLogout}
-              className="flex items-center justify-center w-8 h-8 text-white/60 hover:text-white rounded-lg transition-colors"
+              className="flex items-center justify-center w-8 h-8 text-gray-400 hover:text-sagals hover:bg-sagals/5 rounded-lg transition-colors"
               title="Tancar sessió"
             >
               <LogOut size={16} />

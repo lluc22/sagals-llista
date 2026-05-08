@@ -322,10 +322,10 @@ export default function EventAdmin() {
           </div>
           <BusCheckboxes trips={partDraft.trips} onToggle={toggleTrip} />
           <div className="flex gap-2">
-            <button onClick={() => handleSavePart(p.id)} disabled={savingPart} className="flex items-center gap-1 text-xs bg-sagals text-white px-3 py-1 rounded-lg disabled:opacity-50">
+            <button onClick={() => handleSavePart(p.id)} disabled={savingPart} className="flex items-center gap-1 text-xs bg-sagals hover:bg-sagals-dark text-white px-3 py-1 rounded-lg disabled:opacity-50 transition-colors">
               <Save size={12} /> Desar
             </button>
-            <button onClick={() => setEditingPartId(null)} className="flex items-center gap-1 text-xs text-gray-600 px-3 py-1 rounded-lg border border-gray-200 bg-white">
+            <button onClick={() => setEditingPartId(null)} className="flex items-center gap-1 text-xs text-gray-600 px-3 py-1 rounded-lg border border-gray-200 bg-white hover:bg-gray-100 transition-colors">
               <X size={12} /> Cancel·lar
             </button>
           </div>
@@ -356,7 +356,7 @@ export default function EventAdmin() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <div className="bg-white border-b border-sagals/20 px-4 py-3 sticky top-0 z-10">
+      <div className="bg-sagals-light border-b border-sagals/20 px-4 py-3 sticky top-0 z-10">
         <div className="max-w-lg mx-auto flex items-center justify-between">
           <div className="flex items-center gap-2">
             <button onClick={() => navigate('/')} className="text-gray-400 hover:text-gray-600 transition-colors">
@@ -430,10 +430,10 @@ export default function EventAdmin() {
               <div className="flex-1">
                 <p className="text-xs text-sagals-dark mb-2">S'esborraran tots els participants. Continuar?</p>
                 <div className="flex gap-2">
-                  <button onClick={handleReimport} disabled={reimporting} className="text-xs bg-sagals text-white px-3 py-1 rounded-lg disabled:opacity-50">
+                  <button onClick={handleReimport} disabled={reimporting} className="text-xs bg-sagals hover:bg-sagals-dark text-white px-3 py-1 rounded-lg disabled:opacity-50 transition-colors">
                     {reimporting ? 'Esborrant...' : 'Confirmar'}
                   </button>
-                  <button onClick={() => setConfirmReimport(false)} className="text-xs text-gray-600 px-3 py-1 rounded-lg border border-gray-200">
+                  <button onClick={() => setConfirmReimport(false)} className="text-xs text-gray-600 px-3 py-1 rounded-lg border border-gray-200 bg-white hover:bg-gray-100 transition-colors">
                     Cancel·lar
                   </button>
                 </div>
@@ -447,10 +447,10 @@ export default function EventAdmin() {
               <div className="flex-1">
                 <p className="text-xs text-sagals-dark mb-2">Es tornaran a importar els participants des del formulari. S'esborraran els participants actuals. Continuar?</p>
                 <div className="flex gap-2">
-                  <button onClick={handleSyncFromForm} disabled={syncing} className="text-xs bg-sagals text-white px-3 py-1 rounded-lg disabled:opacity-50">
+                  <button onClick={handleSyncFromForm} disabled={syncing} className="text-xs bg-sagals hover:bg-sagals-dark text-white px-3 py-1 rounded-lg disabled:opacity-50 transition-colors">
                     {syncing ? 'Sincronitzant...' : 'Confirmar'}
                   </button>
-                  <button onClick={() => setConfirmSync(false)} className="text-xs text-gray-600 px-3 py-1 rounded-lg border border-gray-200">
+                  <button onClick={() => setConfirmSync(false)} className="text-xs text-gray-600 px-3 py-1 rounded-lg border border-gray-200 bg-white hover:bg-gray-100 transition-colors">
                     Cancel·lar
                   </button>
                 </div>
@@ -473,11 +473,11 @@ export default function EventAdmin() {
               <BusCheckboxes trips={newPartDraft.trips} onToggle={toggleNewTrip} />
               <div className="flex gap-2">
                 <button onClick={handleAddPart} disabled={savingPart || !newPartDraft.first_name.trim()}
-                  className="flex items-center gap-1 text-xs bg-sagals text-white px-3 py-1 rounded-lg disabled:opacity-50">
+                  className="flex items-center gap-1 text-xs bg-sagals hover:bg-sagals-dark text-white px-3 py-1 rounded-lg disabled:opacity-50 transition-colors">
                   <Save size={12} /> Desar
                 </button>
                 <button onClick={() => setAddingPart(false)}
-                  className="flex items-center gap-1 text-xs text-gray-600 px-3 py-1 rounded-lg border border-gray-200 bg-white">
+                  className="flex items-center gap-1 text-xs text-gray-600 px-3 py-1 rounded-lg border border-gray-200 bg-white hover:bg-gray-100 transition-colors">
                   <X size={12} /> Cancel·lar
                 </button>
               </div>
@@ -488,10 +488,10 @@ export default function EventAdmin() {
             <div className="text-center py-6">
               <p className="text-sm text-gray-400 mb-4">Cap participant importat encara</p>
               <div className="flex items-center justify-center gap-3">
-                <button onClick={() => navigate(`/events/${id}/setup`)} className="bg-sagals text-white px-4 py-2 rounded-lg text-sm font-medium">
+                <button onClick={() => navigate(`/events/${id}/setup`)} className="bg-sagals hover:bg-sagals-dark text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors">
                   Des de Excel
                 </button>
-                <button onClick={() => navigate(`/events/${id}/import-form`)} className="bg-sagals text-white px-4 py-2 rounded-lg text-sm font-medium">
+                <button onClick={() => navigate(`/events/${id}/import-form`)} className="bg-sagals hover:bg-sagals-dark text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors">
                   Des de formulari
                 </button>
               </div>
@@ -639,12 +639,12 @@ export default function EventAdmin() {
                       </select>
                     </div>
                     <div className="flex gap-2">
-                      <button onClick={() => handleSaveBus(bus.id)} disabled={savingBus} className="flex items-center gap-1 text-xs bg-sagals text-white px-3 py-1 rounded-lg disabled:opacity-50">
-                        <Save size={12} /> Desar
-                      </button>
-                      <button onClick={() => setEditingBusId(null)} className="flex items-center gap-1 text-xs text-gray-600 px-3 py-1 rounded-lg border border-gray-200 bg-white">
-                        <X size={12} /> Cancel·lar
-                      </button>
+                    <button onClick={() => handleSaveBus(bus.id)} disabled={savingBus} className="flex items-center gap-1 text-xs bg-sagals hover:bg-sagals-dark text-white px-3 py-1 rounded-lg disabled:opacity-50 transition-colors">
+                      <Save size={12} /> Desar
+                    </button>
+                    <button onClick={() => setEditingBusId(null)} className="flex items-center gap-1 text-xs text-gray-600 px-3 py-1 rounded-lg border border-gray-200 bg-white hover:bg-gray-100 transition-colors">
+                      <X size={12} /> Cancel·lar
+                    </button>
                     </div>
                   </div>
                 ) : (
@@ -679,12 +679,12 @@ export default function EventAdmin() {
                   </select>
                 </div>
                 <div className="flex gap-2">
-                  <button onClick={handleAddBus} disabled={savingBus || !newBus.label.trim()} className="flex items-center gap-1 text-xs bg-sagals text-white px-3 py-1 rounded-lg disabled:opacity-50">
-                    <Save size={12} /> Desar
-                  </button>
-                  <button onClick={() => setAddingBus(false)} className="flex items-center gap-1 text-xs text-gray-600 px-3 py-1 rounded-lg border border-gray-200 bg-white">
-                    <X size={12} /> Cancel·lar
-                  </button>
+                <button onClick={handleAddBus} disabled={savingBus || !newBus.label.trim()} className="flex items-center gap-1 text-xs bg-sagals hover:bg-sagals-dark text-white px-3 py-1 rounded-lg disabled:opacity-50 transition-colors">
+                  <Save size={12} /> Desar
+                </button>
+                <button onClick={() => setAddingBus(false)} className="flex items-center gap-1 text-xs text-gray-600 px-3 py-1 rounded-lg border border-gray-200 bg-white hover:bg-gray-100 transition-colors">
+                  <X size={12} /> Cancel·lar
+                </button>
                 </div>
               </div>
             )}

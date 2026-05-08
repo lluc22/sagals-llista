@@ -75,7 +75,7 @@ export default function UserAdmin() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <div className="bg-white border-b border-sagals/20 px-4 py-3 sticky top-0 z-10">
+      <div className="bg-sagals-light border-b border-sagals/20 px-4 py-3 sticky top-0 z-10">
         <div className="max-w-lg mx-auto flex items-center justify-between">
           <div className="flex items-center gap-2">
             <button onClick={() => navigate('/')} className="text-gray-400 hover:text-gray-600 transition-colors">
