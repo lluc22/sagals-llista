@@ -27,9 +27,9 @@ function renderLogin() {
 beforeEach(() => vi.clearAllMocks())
 
 describe('Login', () => {
-  it('mostra els camps email i contrasenya', () => {
+  it('mostra els camps usuari i contrasenya', () => {
     renderLogin()
-    expect(screen.getByLabelText(/email/i)).toBeInTheDocument()
+    expect(screen.getByLabelText(/usuari/i)).toBeInTheDocument()
     expect(screen.getByLabelText(/contrasenya/i)).toBeInTheDocument()
   })
 
@@ -37,7 +37,7 @@ describe('Login', () => {
     mockPost.mockResolvedValueOnce({ token: 'tok123' })
     renderLogin()
 
-    await userEvent.type(screen.getByLabelText(/email/i), 'admin@sagals.cat')
+    await userEvent.type(screen.getByLabelText(/usuari/i), 'admin@sagals.cat')
     await userEvent.type(screen.getByLabelText(/contrasenya/i), 'secret123')
     await userEvent.click(screen.getByRole('button', { name: /entrar/i }))
 
@@ -50,12 +50,12 @@ describe('Login', () => {
     mockPost.mockRejectedValueOnce(new Error('unauthorized'))
     renderLogin()
 
-    await userEvent.type(screen.getByLabelText(/email/i), 'admin@sagals.cat')
+    await userEvent.type(screen.getByLabelText(/usuari/i), 'admin@sagals.cat')
     await userEvent.type(screen.getByLabelText(/contrasenya/i), 'wrongpass')
     await userEvent.click(screen.getByRole('button', { name: /entrar/i }))
 
     await waitFor(() => {
-      expect(screen.getByText(/email o contrasenya incorrectes/i)).toBeInTheDocument()
+      expect(screen.getByText(/usuari o contrasenya incorrectes/i)).toBeInTheDocument()
     })
     expect(mockNavigate).not.toHaveBeenCalled()
   })
@@ -64,7 +64,7 @@ describe('Login', () => {
     mockPost.mockImplementationOnce(() => new Promise(() => {}))
     renderLogin()
 
-    await userEvent.type(screen.getByLabelText(/email/i), 'admin@sagals.cat')
+    await userEvent.type(screen.getByLabelText(/usuari/i), 'admin@sagals.cat')
     await userEvent.type(screen.getByLabelText(/contrasenya/i), 'secret123')
     await userEvent.click(screen.getByRole('button', { name: /entrar/i }))
 

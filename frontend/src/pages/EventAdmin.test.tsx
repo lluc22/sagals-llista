@@ -74,8 +74,8 @@ describe('EventAdmin - capçalera', () => {
     setup()
     mockPost.mockResolvedValue({ data: activeEvent })
     renderAdmin()
-    await waitFor(() => screen.getByRole('button', { name: /activar actuació/i }))
-    fireEvent.click(screen.getByRole('button', { name: /activar actuació/i }))
+    await waitFor(() => screen.getByRole('button', { name: /^activar$/i }))
+    fireEvent.click(screen.getByRole('button', { name: /^activar$/i }))
     await waitFor(() => expect(mockPost).toHaveBeenCalledWith('/api/events/1/activate'))
     await waitFor(() => expect(screen.getByText(/actiu/i)).toBeInTheDocument())
   })
@@ -90,43 +90,43 @@ describe('EventAdmin - participants', () => {
     expect(screen.getByText('Joan Pla')).toBeInTheDocument()
   })
 
-  it('mostra CTA importar quan no hi ha participants', async () => {
+  it('mostra botons Des de Excel i Des de formulari quan no hi ha participants', async () => {
     setup(draftEvent, [])
     renderAdmin()
-    await waitFor(() => expect(screen.getByRole('button', { name: /importar participants/i })).toBeInTheDocument())
+    await waitFor(() => expect(screen.getByRole('button', { name: /des de excel/i })).toBeInTheDocument())
+    expect(screen.getByRole('button', { name: /des de formulari/i })).toBeInTheDocument()
   })
 
-  it('navega a setup quan es clica importar', async () => {
+  it('navega a setup quan es clica Des de Excel', async () => {
     setup(draftEvent, [])
     renderAdmin()
-    await waitFor(() => screen.getByRole('button', { name: /importar participants/i }))
-    fireEvent.click(screen.getByRole('button', { name: /importar participants/i }))
+    await waitFor(() => screen.getByRole('button', { name: /des de excel/i }))
+    fireEvent.click(screen.getByRole('button', { name: /des de excel/i }))
     expect(mockNavigate).toHaveBeenCalledWith('/events/1/setup')
   })
 
-  it('mostra botó reimportar quan hi ha participants', async () => {
+  it('mostra botó esborrar participants quan hi ha participants', async () => {
     setup()
     renderAdmin()
-    await waitFor(() => expect(screen.getByRole('button', { name: /reimportar/i })).toBeInTheDocument())
+    await waitFor(() => expect(screen.getByRole('button', { name: /esborrar participants/i })).toBeInTheDocument())
   })
 
-  it('reimportar mostra confirmació inline', async () => {
+  it('esborrar participants mostra confirmació inline', async () => {
     setup()
     renderAdmin()
-    await waitFor(() => screen.getByRole('button', { name: /reimportar/i }))
-    fireEvent.click(screen.getByRole('button', { name: /reimportar/i }))
+    await waitFor(() => screen.getByRole('button', { name: /esborrar participants/i }))
+    fireEvent.click(screen.getByRole('button', { name: /esborrar participants/i }))
     await waitFor(() => expect(screen.getByRole('button', { name: /confirmar/i })).toBeInTheDocument())
   })
 
-  it('confirmar reimportar esborra tots els participants i navega a setup', async () => {
+  it('confirmar esborrar participants esborra tots els participants', async () => {
     setup()
     renderAdmin()
-    await waitFor(() => screen.getByRole('button', { name: /reimportar/i }))
-    fireEvent.click(screen.getByRole('button', { name: /reimportar/i }))
+    await waitFor(() => screen.getByRole('button', { name: /esborrar participants/i }))
+    fireEvent.click(screen.getByRole('button', { name: /esborrar participants/i }))
     await waitFor(() => screen.getByRole('button', { name: /confirmar/i }))
     fireEvent.click(screen.getByRole('button', { name: /confirmar/i }))
     await waitFor(() => expect(mockDel).toHaveBeenCalledTimes(3))
-    await waitFor(() => expect(mockNavigate).toHaveBeenCalledWith('/events/1/setup'))
   })
 
   it('elimina un participant per aria-label', async () => {
