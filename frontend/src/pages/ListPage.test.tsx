@@ -152,3 +152,58 @@ describe('ListPage - fotos', () => {
     expect(picCalls.length).toBe(0)
   })
 })
+
+describe('ListPage - assistència', () => {
+  async function openTripList() {
+    setupMocks()
+    renderListPage()
+    await waitFor(() => screen.getByText('Bus Vic'))
+    fireEvent.click(screen.getByText('Bus Vic'))
+    await waitFor(() => screen.getByText(/Mates/))
+  }
+
+  it('mostra Pendent per a participants no marcats', async () => {
+    await openTripList()
+    expect(screen.getAllByText('Pendent').length).toBeGreaterThan(0)
+  })
+
+  it('mostra barra de cerca', async () => {
+    await openTripList()
+    expect(screen.getByPlaceholderText(/cercar/i)).toBeInTheDocument()
+  })
+
+  it('filtra participants per nom', async () => {
+    await openTripList()
+    const search = screen.getByPlaceholderText(/cercar/i)
+    fireEvent.change(search, { target: { value: 'Andreu' } })
+    await waitFor(() => {
+      expect(screen.getByText(/Mates.*Andreu/)).toBeInTheDocument()
+    })
+  })
+
+  it('clica enrere torna al selector de busos', async () => {
+    await openTripList()
+    fireEvent.click(screen.getByText(/canviar bus/i))
+    await waitFor(() => {
+      expect(screen.getByText('Bus Vic')).toBeInTheDocument()
+    })
+  })
+})
+
+describe('ListPage - enllaç no vàlid', () => {
+  it('mostra error quan token és invàlid', async () => {
+    mockPost.mockRejectedValueOnce(new Error('invalid'))
+    mockGet.mockImplementation((path: string) => {
+      if (path.includes('/buses')) return Promise.resolve({ data: [] })
+      return Promise.resolve({ data: [] })
+    })
+    render(
+      <MemoryRouter initialEntries={['/list/festa?t=bad-token']}>
+        <Routes>
+          <Route path="/list/:slug" element={<ListPage />} />
+        </Routes>
+      </MemoryRouter>
+    )
+    await waitFor(() => expect(screen.getByText(/no vàlid/i)).toBeInTheDocument())
+  })
+})
