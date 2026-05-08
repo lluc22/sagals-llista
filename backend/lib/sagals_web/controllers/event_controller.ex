@@ -27,8 +27,11 @@ defmodule SagalsWeb.EventController do
     event = Events.get_event!(id)
 
     case Events.update_event(event, Map.drop(params, ["id"])) do
-      {:ok, event} -> json(conn, %{data: serialize(event)})
-      {:error, cs} -> conn |> put_status(:unprocessable_entity) |> json(%{errors: format_errors(cs)})
+      {:ok, event} ->
+        json(conn, %{data: serialize(event)})
+
+      {:error, cs} ->
+        conn |> put_status(:unprocessable_entity) |> json(%{errors: format_errors(cs)})
     end
   end
 
@@ -36,8 +39,11 @@ defmodule SagalsWeb.EventController do
     event = Events.get_event!(id)
 
     case Events.activate_event(event) do
-      {:ok, event} -> json(conn, %{data: serialize(event)})
-      {:error, cs} -> conn |> put_status(:unprocessable_entity) |> json(%{errors: format_errors(cs)})
+      {:ok, event} ->
+        json(conn, %{data: serialize(event)})
+
+      {:error, cs} ->
+        conn |> put_status(:unprocessable_entity) |> json(%{errors: format_errors(cs)})
     end
   end
 
@@ -45,8 +51,11 @@ defmodule SagalsWeb.EventController do
     event = Events.get_event!(id)
 
     case Events.deactivate_event(event) do
-      {:ok, event} -> json(conn, %{data: serialize(event)})
-      {:error, cs} -> conn |> put_status(:unprocessable_entity) |> json(%{errors: format_errors(cs)})
+      {:ok, event} ->
+        json(conn, %{data: serialize(event)})
+
+      {:error, cs} ->
+        conn |> put_status(:unprocessable_entity) |> json(%{errors: format_errors(cs)})
     end
   end
 
@@ -66,6 +75,8 @@ defmodule SagalsWeb.EventController do
       access_token: e.access_token,
       column_mapping: e.column_mapping,
       transport_mapping: e.transport_mapping,
+      form_id: e.form_id,
+      form_mapping: e.form_mapping,
       inserted_at: e.inserted_at
     }
   end

@@ -7,6 +7,7 @@ import EventSetup from './pages/EventSetup'
 import EventAdmin from './pages/EventAdmin'
 import UserAdmin from './pages/UserAdmin'
 import ListPage from './pages/ListPage'
+import FormImport from './pages/FormImport'
 
 function RequireAuth({ children }: { children: React.ReactNode }) {
   return isAuthenticated() ? <>{children}</> : <Navigate to="/login" replace />
@@ -19,6 +20,8 @@ export default function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/" element={<RequireAuth><EventList /></RequireAuth>} />
         <Route path="/events/new" element={<RequireAuth><NewEvent /></RequireAuth>} />
+        <Route path="/events/new-from-form" element={<RequireAuth><FormImport /></RequireAuth>} />
+        <Route path="/events/:id/import-form" element={<RequireAuth><FormImport /></RequireAuth>} />
         <Route path="/events/:id/setup" element={<RequireAuth><EventSetup /></RequireAuth>} />
         <Route path="/events/:id/admin" element={<RequireAuth><EventAdmin /></RequireAuth>} />
         <Route path="/users" element={<RequireAuth><UserAdmin /></RequireAuth>} />

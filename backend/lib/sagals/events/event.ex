@@ -12,6 +12,8 @@ defmodule Sagals.Events.Event do
     field :access_token, :string
     field :column_mapping, :map, default: %{}
     field :transport_mapping, :map, default: %{}
+    field :form_id, :integer
+    field :form_mapping, :map, default: %{}
 
     has_many :buses, Sagals.Events.Bus
     has_many :participants, Sagals.Events.Participant
@@ -21,7 +23,16 @@ defmodule Sagals.Events.Event do
 
   def changeset(event, attrs) do
     event
-    |> cast(attrs, [:name, :date, :slug, :status, :column_mapping, :transport_mapping])
+    |> cast(attrs, [
+      :name,
+      :date,
+      :slug,
+      :status,
+      :column_mapping,
+      :transport_mapping,
+      :form_id,
+      :form_mapping
+    ])
     |> validate_required([:name, :date, :slug])
     |> validate_inclusion(:status, @statuses)
     |> unique_constraint(:slug)

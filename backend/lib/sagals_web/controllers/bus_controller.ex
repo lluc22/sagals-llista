@@ -25,8 +25,11 @@ defmodule SagalsWeb.BusController do
     bus = Events.get_bus!(id)
 
     case Events.update_bus(bus, Map.drop(params, ["id"])) do
-      {:ok, bus} -> json(conn, %{data: serialize(bus)})
-      {:error, cs} -> conn |> put_status(:unprocessable_entity) |> json(%{errors: format_errors(cs)})
+      {:ok, bus} ->
+        json(conn, %{data: serialize(bus)})
+
+      {:error, cs} ->
+        conn |> put_status(:unprocessable_entity) |> json(%{errors: format_errors(cs)})
     end
   end
 
@@ -37,8 +40,14 @@ defmodule SagalsWeb.BusController do
   end
 
   defp serialize(b) do
-    %{id: b.id, event_id: b.event_id, label: b.label,
-      departure_time: b.departure_time, direction: b.direction, order: b.order}
+    %{
+      id: b.id,
+      event_id: b.event_id,
+      label: b.label,
+      departure_time: b.departure_time,
+      direction: b.direction,
+      order: b.order
+    }
   end
 
   defp format_errors(changeset) do

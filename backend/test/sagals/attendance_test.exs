@@ -4,16 +4,36 @@ defmodule Sagals.AttendanceTest do
   alias Sagals.{Attendance, Events}
 
   defp setup_trip(_) do
-    {:ok, event} = Events.create_event(%{name: "Test", date: ~D[2025-01-01], slug: "test-#{System.unique_integer()}"})
+    {:ok, event} =
+      Events.create_event(%{
+        name: "Test",
+        date: ~D[2025-01-01],
+        slug: "test-#{System.unique_integer()}"
+      })
+
     {:ok, bus} = Events.create_bus(event, %{label: "Bus", direction: "anada", order: 1})
 
     transport_mapping = %{
-      "Bus" => %{"usesBus" => true, "buses" => [%{"busId" => to_string(bus.id), "direction" => "anada"}]}
+      "Bus" => %{
+        "usesBus" => true,
+        "buses" => [%{"busId" => to_string(bus.id), "direction" => "anada"}]
+      }
     }
 
-    {:ok, _} = Events.import_participants(event, [
-      %{first_name: "Anna", last_name: "Vila", last_name2: "", nickname: "", transport_raw: "Bus"}
-    ], transport_mapping)
+    {:ok, _} =
+      Events.import_participants(
+        event,
+        [
+          %{
+            first_name: "Anna",
+            last_name: "Vila",
+            last_name2: "",
+            nickname: "",
+            transport_raw: "Bus"
+          }
+        ],
+        transport_mapping
+      )
 
     [trip | _] = Events.list_trips_for_bus(bus.id, "anada")
     {:ok, event: event, bus: bus, trip: trip}

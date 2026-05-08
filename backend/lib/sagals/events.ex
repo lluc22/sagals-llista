@@ -73,7 +73,9 @@ defmodule Sagals.Events do
   # --- Participants ---
 
   def list_participants(event) do
-    Repo.all(from p in Participant, where: p.event_id == ^event.id, order_by: [p.last_name, p.first_name])
+    Repo.all(
+      from p in Participant, where: p.event_id == ^event.id, order_by: [p.last_name, p.first_name]
+    )
   end
 
   def list_participants_with_trips(event) do
@@ -104,6 +106,7 @@ defmodule Sagals.Events do
   def replace_participant_trips(participant, trips_data) do
     Repo.transaction(fn ->
       Repo.delete_all(from t in ParticipantTrip, where: t.participant_id == ^participant.id)
+
       Enum.each(trips_data, fn t ->
         %ParticipantTrip{}
         |> ParticipantTrip.changeset(%{
@@ -136,13 +139,23 @@ defmodule Sagals.Events do
   end
 
   defp build_trips(participant_id, transport_raw, transport_mapping) do
-    rule = Map.get(transport_mapping, transport_raw)
+    trimmed = String.trim(transport_raw)
+    rule =
+      Map.get(transport_mapping, transport_raw) ||
+      Map.get(transport_mapping, trimmed) ||
+      Enum.find_value(transport_mapping, fn {k, v} ->
+        if String.trim(k) == trimmed, do: v
+      end)
 
     if is_nil(rule) || !rule["usesBus"] do
       []
     else
       Enum.flat_map(rule["buses"], fn entry ->
-        bus_id = if is_integer(entry["busId"]), do: entry["busId"], else: String.to_integer(entry["busId"])
+        bus_id =
+          if is_integer(entry["busId"]),
+            do: entry["busId"],
+            else: String.to_integer(entry["busId"])
+
         directions = expand_direction(entry["direction"])
 
         Enum.map(directions, fn dir ->
@@ -157,6 +170,33 @@ defmodule Sagals.Events do
   end
 
   defp expand_direction(dir), do: [dir]
+
+  def import_form_participants(event, rows) do
+    Repo.transaction(fn ->
+      Enum.each(rows, fn row ->
+        {:ok, participant} =
+          %Participant{}
+          |> Participant.changeset(stringify_merge(row, %{event_id: event.id}))
+          |> Repo.insert()
+
+        Enum.each(row.trips_data, fn trip ->
+          %ParticipantTrip{}
+          |> ParticipantTrip.changeset(%{
+            participant_id: participant.id,
+            bus_id:
+              if(is_integer(trip["bus_id"]),
+                do: trip["bus_id"],
+                else: String.to_integer(to_string(trip["bus_id"]))
+              ),
+            direction: trip["direction"]
+          })
+          |> Repo.insert!()
+        end)
+      end)
+
+      length(rows)
+    end)
+  end
 
   defp stringify_merge(base, extras) do
     stringified = Map.new(base, fn {k, v} -> {to_string(k), v} end)

@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Plus, Trash2, ArrowLeft } from 'lucide-react'
+import { Plus, Trash2, ArrowLeft, FileText } from 'lucide-react'
 import { api } from '../lib/api'
 import { addBus, removeBus, updateBus, type BusDraft } from '../lib/buses'
 import type { Event, Bus } from '../types'
@@ -42,14 +42,14 @@ export default function NewEvent() {
     setSaving(true)
     try {
       let event: Event | undefined
-      for (let attempt = 0; attempt < 5; attempt++) {
+      for (let attempt = 0; attempt < 10; attempt++) {
         const slug = generateSlug(name, attempt > 0 ? String(attempt + 1) : '')
         try {
           const res = await api.post<{ data: Event }>('/api/events', { name, date, slug, status: 'draft', column_mapping: {}, transport_mapping: {} })
           event = res.data
           break
         } catch (err) {
-          if (!isSlugConflict(err) || attempt === 4) throw err
+          if (!isSlugConflict(err) || attempt === 9) throw err
         }
       }
       if (!event) throw new Error('No s\'ha pogut crear l\'event')
@@ -58,8 +58,9 @@ export default function NewEvent() {
       }
       navigate(`/events/${event.id}/setup`)
     } catch (err: unknown) {
-      const msg = (err as { message?: string })?.message ?? String(err)
-      setError(`Error: ${msg}`)
+      const e = err as { status?: number; data?: { errors?: Record<string, string[]> } }
+      const detail = e.data?.errors ? Object.entries(e.data.errors).map(([k, v]) => `${k}: ${(v as string[]).join(', ')}`).join('; ') : (err as { message?: string })?.message ?? String(err)
+      setError(`Error: ${detail}`)
       console.error(err)
     } finally {
       setSaving(false)
@@ -78,6 +79,20 @@ export default function NewEvent() {
       </div>
       <div className="p-4">
         <div className="max-w-lg mx-auto">
+
+        <button
+          type="button"
+          onClick={() => navigate('/events/new-from-form')}
+          className="w-full bg-white rounded-xl border border-sagals/20 p-4 text-left hover:border-sagals transition-colors shadow-sm mb-4 flex items-center gap-3"
+        >
+          <div className="w-10 h-10 rounded-full bg-sagals-light flex items-center justify-center shrink-0">
+            <FileText size={18} className="text-sagals-dark" />
+          </div>
+          <div>
+            <p className="font-medium text-gray-900">Importar des de formulari</p>
+            <p className="text-xs text-gray-500">Crea l'actuació a partir d'un formulari de Tenimaleta</p>
+          </div>
+        </button>
 
         <form onSubmit={handleSubmit} className="space-y-6">
           <div className="bg-white rounded-xl border border-sagals/10 p-4 space-y-4">

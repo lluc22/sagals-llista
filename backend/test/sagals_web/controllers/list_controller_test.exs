@@ -4,11 +4,13 @@ defmodule SagalsWeb.ListControllerTest do
   alias Sagals.{Auth, Events}
 
   defp list_conn(conn) do
-    {:ok, event} = Events.create_event(%{
-      name: "Test",
-      date: ~D[2025-01-01],
-      slug: "list-test-#{System.unique_integer()}"
-    })
+    {:ok, event} =
+      Events.create_event(%{
+        name: "Test",
+        date: ~D[2025-01-01],
+        slug: "list-test-#{System.unique_integer()}"
+      })
+
     {:ok, activated} = Events.activate_event(event)
     token = Auth.generate_list_token(activated.id)
     put_req_header(conn, "authorization", "Bearer #{token}")
@@ -19,8 +21,8 @@ defmodule SagalsWeb.ListControllerTest do
       cond do
         String.contains?(conn.request_path, "castellersInfo") ->
           Req.Test.json(conn, %{
-            "1" => %{"id" => 1, "mote" => "Mates",  "hidden" => 0},
-            "2" => %{"id" => 2, "mote" => "Coll",   "hidden" => 0},
+            "1" => %{"id" => 1, "mote" => "Mates", "hidden" => 0},
+            "2" => %{"id" => 2, "mote" => "Coll", "hidden" => 0},
             "3" => %{"id" => 3, "mote" => "Hidden", "hidden" => 1}
           })
 

@@ -4,7 +4,14 @@ defmodule Sagals.EventsTest do
   alias Sagals.Events
 
   defp event_attrs(overrides \\ %{}) do
-    Map.merge(%{name: "Festa Major", date: ~D[2025-06-01], slug: "festa-major-#{System.unique_integer()}"}, overrides)
+    Map.merge(
+      %{
+        name: "Festa Major",
+        date: ~D[2025-06-01],
+        slug: "festa-major-#{System.unique_integer()}"
+      },
+      overrides
+    )
   end
 
   describe "create_event/1" do
@@ -64,7 +71,9 @@ defmodule Sagals.EventsTest do
     end
 
     test "create_bus/2 creates a bus for an event", %{event: event} do
-      assert {:ok, bus} = Events.create_bus(event, %{label: "Bus Vic", direction: "anada", order: 1})
+      assert {:ok, bus} =
+               Events.create_bus(event, %{label: "Bus Vic", direction: "anada", order: 1})
+
       assert bus.label == "Bus Vic"
       assert bus.event_id == event.id
     end
@@ -93,18 +102,36 @@ defmodule Sagals.EventsTest do
     setup do
       {:ok, event} = Events.create_event(event_attrs())
       {:ok, bus1} = Events.create_bus(event, %{label: "Bus Vic", direction: "anada", order: 1})
-      {:ok, bus2} = Events.create_bus(event, %{label: "Bus Manlleu", direction: "anada", order: 2})
+
+      {:ok, bus2} =
+        Events.create_bus(event, %{label: "Bus Manlleu", direction: "anada", order: 2})
+
       {:ok, event: event, bus1: bus1, bus2: bus2}
     end
 
     test "creates participants and trips from import data", %{event: event, bus1: bus1} do
       transport_mapping = %{
-        "Bus Vic" => %{"usesBus" => true, "buses" => [%{"busId" => to_string(bus1.id), "direction" => "anada"}]}
+        "Bus Vic" => %{
+          "usesBus" => true,
+          "buses" => [%{"busId" => to_string(bus1.id), "direction" => "anada"}]
+        }
       }
 
       rows = [
-        %{first_name: "Anna", last_name: "Vila", last_name2: "", nickname: "", transport_raw: "Bus Vic"},
-        %{first_name: "Pau", last_name: "Serra", last_name2: "", nickname: "", transport_raw: "Bus Vic"}
+        %{
+          first_name: "Anna",
+          last_name: "Vila",
+          last_name2: "",
+          nickname: "",
+          transport_raw: "Bus Vic"
+        },
+        %{
+          first_name: "Pau",
+          last_name: "Serra",
+          last_name2: "",
+          nickname: "",
+          transport_raw: "Bus Vic"
+        }
       ]
 
       assert {:ok, count} = Events.import_participants(event, rows, transport_mapping)
@@ -119,10 +146,21 @@ defmodule Sagals.EventsTest do
 
     test "anada direction creates one trip per participant", %{event: event, bus1: bus1} do
       transport_mapping = %{
-        "Bus" => %{"usesBus" => true, "buses" => [%{"busId" => to_string(bus1.id), "direction" => "anada"}]}
+        "Bus" => %{
+          "usesBus" => true,
+          "buses" => [%{"busId" => to_string(bus1.id), "direction" => "anada"}]
+        }
       }
 
-      rows = [%{first_name: "Anna", last_name: "Vila", last_name2: "", nickname: "", transport_raw: "Bus"}]
+      rows = [
+        %{
+          first_name: "Anna",
+          last_name: "Vila",
+          last_name2: "",
+          nickname: "",
+          transport_raw: "Bus"
+        }
+      ]
 
       {:ok, _} = Events.import_participants(event, rows, transport_mapping)
 
@@ -137,7 +175,15 @@ defmodule Sagals.EventsTest do
         "Propi" => %{"usesBus" => false, "buses" => []}
       }
 
-      rows = [%{first_name: "Joan", last_name: "Pla", last_name2: "", nickname: "", transport_raw: "Propi"}]
+      rows = [
+        %{
+          first_name: "Joan",
+          last_name: "Pla",
+          last_name2: "",
+          nickname: "",
+          transport_raw: "Propi"
+        }
+      ]
 
       {:ok, _} = Events.import_participants(event, rows, transport_mapping)
       participants = Events.list_participants(event)

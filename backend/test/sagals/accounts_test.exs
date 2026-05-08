@@ -5,7 +5,9 @@ defmodule Sagals.AccountsTest do
 
   describe "create_user/1" do
     test "creates a user with valid data" do
-      assert {:ok, user} = Accounts.create_user(%{email: "admin@sagals.cat", password: "secret123"})
+      assert {:ok, user} =
+               Accounts.create_user(%{email: "admin@sagals.cat", password: "secret123"})
+
       assert user.email == "admin@sagals.cat"
       assert user.hashed_password != nil
       assert user.hashed_password != "secret123"
@@ -13,7 +15,10 @@ defmodule Sagals.AccountsTest do
 
     test "rejects duplicate email" do
       {:ok, _} = Accounts.create_user(%{email: "dup@sagals.cat", password: "secret123"})
-      assert {:error, changeset} = Accounts.create_user(%{email: "dup@sagals.cat", password: "other123"})
+
+      assert {:error, changeset} =
+               Accounts.create_user(%{email: "dup@sagals.cat", password: "other123"})
+
       assert %{email: ["has already been taken"]} = errors_on(changeset)
     end
 
@@ -40,11 +45,13 @@ defmodule Sagals.AccountsTest do
     end
 
     test "returns error with wrong password" do
-      assert {:error, :invalid_credentials} = Accounts.authenticate_user("auth@sagals.cat", "wrong")
+      assert {:error, :invalid_credentials} =
+               Accounts.authenticate_user("auth@sagals.cat", "wrong")
     end
 
     test "returns error with unknown email" do
-      assert {:error, :invalid_credentials} = Accounts.authenticate_user("nobody@sagals.cat", "any")
+      assert {:error, :invalid_credentials} =
+               Accounts.authenticate_user("nobody@sagals.cat", "any")
     end
   end
 end

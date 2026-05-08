@@ -3,7 +3,9 @@ defmodule Sagals.Repo.Migrations.CreateAttendance do
 
   def change do
     create table(:attendance) do
-      add :participant_trip_id, references(:participant_trips, on_delete: :delete_all), null: false
+      add :participant_trip_id, references(:participant_trips, on_delete: :delete_all),
+        null: false
+
       add :status, :string, null: false, default: "pendent"
       add :marked_at, :utc_datetime
       add :marked_by, :string

@@ -20,7 +20,17 @@ defmodule Sagals.Events.Participant do
 
   def changeset(participant, attrs) do
     participant
-    |> cast(attrs, [:first_name, :last_name, :last_name2, :nickname, :transport_raw, :observations, :companions, :reviewed, :event_id])
+    |> cast(attrs, [
+      :first_name,
+      :last_name,
+      :last_name2,
+      :nickname,
+      :transport_raw,
+      :observations,
+      :companions,
+      :reviewed,
+      :event_id
+    ])
     |> validate_required([:event_id])
   end
 end

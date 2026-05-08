@@ -4,18 +4,32 @@ defmodule SagalsWeb.EventControllerTest do
   alias Sagals.{Accounts, Auth, Events}
 
   defp authed_conn(conn) do
-    {:ok, user} = Accounts.create_user(%{email: "admin#{System.unique_integer()}@test.cat", password: "password123"})
+    {:ok, user} =
+      Accounts.create_user(%{
+        email: "admin#{System.unique_integer()}@test.cat",
+        password: "password123"
+      })
+
     token = Auth.generate_admin_token(user.id)
     put_req_header(conn, "authorization", "Bearer #{token}")
   end
 
   defp event_attrs(overrides \\ %{}) do
-    Map.merge(%{"name" => "Festa", "date" => "2025-06-01", "slug" => "festa-#{System.unique_integer()}"}, overrides)
+    Map.merge(
+      %{"name" => "Festa", "date" => "2025-06-01", "slug" => "festa-#{System.unique_integer()}"},
+      overrides
+    )
   end
 
   describe "GET /api/events" do
     test "returns events list when authenticated", %{conn: conn} do
-      {:ok, _} = Events.create_event(%{name: "Test", date: ~D[2025-01-01], slug: "test-#{System.unique_integer()}"})
+      {:ok, _} =
+        Events.create_event(%{
+          name: "Test",
+          date: ~D[2025-01-01],
+          slug: "test-#{System.unique_integer()}"
+        })
+
       resp = conn |> authed_conn() |> get("/api/events") |> json_response(200)
       assert length(resp["data"]) >= 1
     end
@@ -40,9 +54,15 @@ defmodule SagalsWeb.EventControllerTest do
 
   describe "POST /api/events/:id/activate" do
     test "activates event and returns access_token", %{conn: conn} do
-      {:ok, event} = Events.create_event(%{name: "T", date: ~D[2025-01-01], slug: "t-#{System.unique_integer()}"})
+      {:ok, event} =
+        Events.create_event(%{
+          name: "T",
+          date: ~D[2025-01-01],
+          slug: "t-#{System.unique_integer()}"
+        })
 
-      resp = conn
+      resp =
+        conn
         |> authed_conn()
         |> post("/api/events/#{event.id}/activate")
         |> json_response(200)
@@ -54,12 +74,19 @@ defmodule SagalsWeb.EventControllerTest do
 
   describe "buses" do
     setup %{conn: conn} do
-      {:ok, event} = Events.create_event(%{name: "T", date: ~D[2025-01-01], slug: "bus-test-#{System.unique_integer()}"})
+      {:ok, event} =
+        Events.create_event(%{
+          name: "T",
+          date: ~D[2025-01-01],
+          slug: "bus-test-#{System.unique_integer()}"
+        })
+
       {:ok, conn: authed_conn(conn), event: event}
     end
 
     test "POST /api/events/:id/buses creates bus", %{conn: conn, event: event} do
-      resp = conn
+      resp =
+        conn
         |> post("/api/events/#{event.id}/buses", %{label: "Bus Vic", direction: "anada", order: 1})
         |> json_response(201)
 

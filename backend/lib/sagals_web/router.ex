@@ -26,6 +26,7 @@ defmodule SagalsWeb.Router do
     resources "/events", EventController, only: [:index, :show, :create, :update, :delete] do
       post "/activate", EventController, :activate
       post "/deactivate", EventController, :deactivate
+      post "/import_form", ParticipantController, :import_form
       resources "/buses", BusController, only: [:index, :create]
       resources "/participants", ParticipantController, only: [:index, :create]
       post "/participants/import", ParticipantController, :import
@@ -38,6 +39,10 @@ defmodule SagalsWeb.Router do
     post "/users", UserController, :create
     put "/users/:id", UserController, :update
     delete "/users/:id", UserController, :delete
+
+    get "/tenimaleta/forms", TenimaletaController, :forms
+    get "/tenimaleta/forms/:form_id/responses", TenimaletaController, :form_responses
+    get "/tenimaleta/castellers", TenimaletaController, :castellers
   end
 
   scope "/api/list", SagalsWeb do

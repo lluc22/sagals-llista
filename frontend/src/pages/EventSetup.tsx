@@ -4,13 +4,13 @@ import { read, utils } from 'xlsx'
 import { ArrowLeft, Upload, CheckCircle, Plus, Trash2 } from 'lucide-react'
 import { api } from '../lib/api'
 import { detectColumns, getUniqueTransportValues } from '../lib/excel'
-import type { Event, Bus, ColumnMapping, TransportMapping, TransportBusEntry } from '../types'
+import type { Event, Bus, ColumnMapping, TransportMapping } from '../types'
 
 type Step = 'import' | 'columns' | 'transport'
 
 interface TransportRule {
   usesBus: boolean
-  buses: TransportBusEntry[]
+  busIds: number[]
 }
 
 const FIELD_LABELS: Record<keyof ColumnMapping, string> = {
@@ -77,11 +77,20 @@ export default function EventSetup() {
 
   function handleContinueFromColumns() {
     const uniqueVals = getUniqueTransportValues(rows, mapping.transport)
+    const defaultIds = (() => {
+      const firstAnada = buses.find(b => b.direction === 'anada')
+      const firstTornada = buses.find(b => b.direction === 'tornada')
+      const ids: number[] = []
+      if (firstAnada) ids.push(firstAnada.id)
+      if (firstTornada) ids.push(firstTornada.id)
+      if (ids.length === 0 && buses.length > 0) ids.push(buses[0].id)
+      return ids
+    })()
     const initial: Record<string, TransportRule> = {}
     for (const val of uniqueVals) {
       initial[val] = {
         usesBus: false,
-        buses: buses.length > 0 ? [{ busId: buses[0].id, direction: 'anada' }] : [],
+        busIds: [...defaultIds],
       }
     }
     setTransportRules(initial)
@@ -89,12 +98,12 @@ export default function EventSetup() {
     setError('')
   }
 
-  function updateBusEntry(val: string, idx: number, patch: Partial<TransportBusEntry>) {
+  function updateBusEntry(val: string, idx: number, busId: number) {
     setTransportRules(prev => ({
       ...prev,
       [val]: {
         ...prev[val],
-        buses: prev[val].buses.map((b, i) => i === idx ? { ...b, ...patch } : b),
+        busIds: prev[val].busIds.map((b, i) => i === idx ? busId : b),
       },
     }))
   }
@@ -104,7 +113,7 @@ export default function EventSetup() {
       ...prev,
       [val]: {
         ...prev[val],
-        buses: [...prev[val].buses, { busId: buses[0]?.id ?? 0, direction: 'anada' }],
+        busIds: [...prev[val].busIds, buses[0]?.id ?? 0],
       },
     }))
   }
@@ -114,7 +123,7 @@ export default function EventSetup() {
       ...prev,
       [val]: {
         ...prev[val],
-        buses: prev[val].buses.filter((_, i) => i !== idx),
+        busIds: prev[val].busIds.filter((_, i) => i !== idx),
       },
     }))
   }
@@ -125,7 +134,17 @@ export default function EventSetup() {
     try {
       const transportMapping: TransportMapping = {}
       for (const [val, rule] of Object.entries(transportRules)) {
-        transportMapping[val] = { usesBus: rule.usesBus, buses: rule.usesBus ? rule.buses : [] }
+        if (rule.usesBus) {
+          transportMapping[val] = {
+            usesBus: true,
+            buses: rule.busIds.map(busId => {
+              const bus = buses.find(b => b.id === busId)
+              return { busId, direction: bus?.direction ?? 'anada' }
+            })
+          }
+        } else {
+          transportMapping[val] = { usesBus: false, buses: [] }
+        }
       }
 
       await api.patch(`/api/events/${id}`, { column_mapping: mapping, transport_mapping: transportMapping })
@@ -258,23 +277,16 @@ export default function EventSetup() {
 
                     {rule.usesBus && (
                       <div className="pl-5 space-y-2">
-                        {rule.buses.map((entry, idx) => (
+                        {rule.busIds.map((busId, idx) => (
                           <div key={idx} className="flex items-center gap-2">
                             <select
-                              value={entry.busId}
-                              onChange={e => updateBusEntry(val, idx, { busId: Number(e.target.value) })}
-                              className="w-36 shrink-0 border border-gray-200 rounded px-2 py-1 text-xs"
+                              value={busId}
+                              onChange={e => updateBusEntry(val, idx, Number(e.target.value))}
+                              className="shrink-0 border border-gray-200 rounded px-2 py-1 text-xs"
                             >
-                              {buses.map(b => <option key={b.id} value={b.id}>{b.label}</option>)}
+                              {buses.map(b => <option key={b.id} value={b.id}>{b.label} · {DIRECTION_LABELS[b.direction]}</option>)}
                             </select>
-                            <select
-                              value={entry.direction}
-                              onChange={e => updateBusEntry(val, idx, { direction: e.target.value as TransportBusEntry['direction'] })}
-                              className="w-32 shrink-0 border border-gray-200 rounded px-2 py-1 text-xs"
-                            >
-                              {Object.entries(DIRECTION_LABELS).map(([v, l]) => <option key={v} value={v}>{l}</option>)}
-                            </select>
-                            {rule.buses.length > 1 && (
+                            {rule.busIds.length > 1 && (
                               <button type="button" onClick={() => removeBusEntry(val, idx)} className="text-gray-400 hover:text-red-500">
                                 <Trash2 size={14} />
                               </button>

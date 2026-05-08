@@ -49,7 +49,9 @@ defmodule SagalsWeb.UserController do
     current_user = conn.assigns.current_user
 
     if user.id == current_user.id do
-      conn |> put_status(:unprocessable_entity) |> json(%{errors: ["No pots eliminar-te a tu mateix"]})
+      conn
+      |> put_status(:unprocessable_entity)
+      |> json(%{errors: ["No pots eliminar-te a tu mateix"]})
     else
       {:ok, _} = Accounts.delete_user(user)
       send_resp(conn, :no_content, "")

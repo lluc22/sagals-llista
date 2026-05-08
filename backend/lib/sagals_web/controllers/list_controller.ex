@@ -8,34 +8,47 @@ defmodule SagalsWeb.ListController do
   def buses(conn, _params) do
     event = conn.assigns.current_event
     buses = Events.list_buses(event)
-    json(conn, %{data: Enum.map(buses, fn b ->
-      %{id: b.id, label: b.label, departure_time: b.departure_time, direction: b.direction, order: b.order}
-    end)})
+
+    json(conn, %{
+      data:
+        Enum.map(buses, fn b ->
+          %{
+            id: b.id,
+            label: b.label,
+            departure_time: b.departure_time,
+            direction: b.direction,
+            order: b.order
+          }
+        end)
+    })
   end
 
   def participants(conn, %{"bus_id" => bus_id, "direction" => direction}) do
     results = Attendance.list_for_bus(String.to_integer(bus_id), direction)
 
-    json(conn, %{data: Enum.map(results, fn %{trip: trip, participant: p, attendance: att} ->
-      %{
-        trip_id: trip.id,
-        participant: %{
-          id: p.id,
-          first_name: p.first_name,
-          last_name: p.last_name,
-          last_name2: p.last_name2,
-          nickname: p.nickname,
-          observations: p.observations,
-          companions: p.companions
-        },
-        attendance: %{
-          id: att.id,
-          status: att.status,
-          marked_at: att.marked_at,
-          marked_by: att.marked_by
-        }
-      }
-    end)})
+    json(conn, %{
+      data:
+        Enum.map(results, fn %{trip: trip, participant: p, attendance: att} ->
+          %{
+            trip_id: trip.id,
+            participant: %{
+              id: p.id,
+              first_name: p.first_name,
+              last_name: p.last_name,
+              last_name2: p.last_name2,
+              nickname: p.nickname,
+              observations: p.observations,
+              companions: p.companions
+            },
+            attendance: %{
+              id: att.id,
+              status: att.status,
+              marked_at: att.marked_at,
+              marked_by: att.marked_by
+            }
+          }
+        end)
+    })
   end
 
   def mark(conn, %{"trip_id" => trip_id, "status" => status} = params) do
@@ -51,7 +64,12 @@ defmodule SagalsWeb.ListController do
           marked_by: att.marked_by
         }
 
-        SagalsWeb.Endpoint.broadcast("attendance:#{trip.bus_id}:#{trip.direction}", "update", payload)
+        SagalsWeb.Endpoint.broadcast(
+          "attendance:#{trip.bus_id}:#{trip.direction}",
+          "update",
+          payload
+        )
+
         json(conn, %{data: payload})
 
       {:error, cs} ->
@@ -62,8 +80,10 @@ defmodule SagalsWeb.ListController do
   def castellers(conn, _params) do
     api_key = Application.get_env(:sagals, :tenimaleta_api_key, "")
 
-    case Req.get("https://sagals-api.tenimaleta.com/api/castellersInfo",
-           [headers: [{"x-api-key", api_key}]] ++ req_options()) do
+    case Req.get(
+           "https://sagals-api.tenimaleta.com/api/castellersInfo",
+           [headers: [{"x-api-key", api_key}]] ++ req_options()
+         ) do
       {:ok, %{status: 200, body: body}} ->
         result =
           body

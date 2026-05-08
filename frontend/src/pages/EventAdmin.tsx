@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
-import { ArrowLeft, Copy, CheckCircle, Pencil, Trash2, Plus, X, Save, AlertTriangle, Users, MessageSquare, Share2, ExternalLink } from 'lucide-react'
+import { ArrowLeft, Copy, CheckCircle, Pencil, Trash2, Plus, X, Save, AlertTriangle, Users, MessageSquare, Share2, ExternalLink, RefreshCw } from 'lucide-react'
 import { api } from '../lib/api'
 import type { Event, Bus, Participant } from '../types'
 
@@ -38,6 +38,8 @@ export default function EventAdmin() {
   const [copied, setCopied] = useState<string | null>(null)
   const [confirmReimport, setConfirmReimport] = useState(false)
   const [reimporting, setReimporting] = useState(false)
+  const [confirmSync, setConfirmSync] = useState(false)
+  const [syncing, setSyncing] = useState(false)
   const [confirmDelete, setConfirmDelete] = useState(false)
 
   const [editingBusId, setEditingBusId] = useState<number | null>(null)
@@ -96,8 +98,18 @@ export default function EventAdmin() {
     setReimporting(true)
     try {
       for (const p of participants) await api.del(`/api/participants/${p.id}`)
-      navigate(`/events/${id}/setup`)
+      setParticipants([])
     } finally { setReimporting(false); setConfirmReimport(false) }
+  }
+
+  async function handleSyncFromForm() {
+    if (!id || !event?.form_id) return
+    setSyncing(true)
+    try {
+      for (const p of participants) await api.del(`/api/participants/${p.id}`)
+      setParticipants([])
+      navigate(`/events/${id}/import-form`)
+    } finally { setSyncing(false); setConfirmSync(false) }
   }
 
   async function handleDeleteParticipant(participantId: number) {
@@ -397,9 +409,14 @@ export default function EventAdmin() {
                 className="flex items-center gap-1 text-sm text-sagals-dark hover:text-sagals">
                 <Plus size={14} /> Afegir
               </button>
+              {participants.length > 0 && event.form_id && !confirmSync && (
+                <button onClick={() => setConfirmSync(true)} className="flex items-center gap-1 text-sm text-sagals-dark hover:text-sagals">
+                  <RefreshCw size={14} /> Sincronitzar
+                </button>
+              )}
               {participants.length > 0 && !confirmReimport && (
-                <button onClick={() => setConfirmReimport(true)} className="text-xs text-sagals-dark hover:text-sagals">
-                  Reimportar
+                <button onClick={() => setConfirmReimport(true)} className="text-xs text-red-500 hover:text-red-700">
+                  Esborrar participants
                 </button>
               )}
             </div>
@@ -415,6 +432,23 @@ export default function EventAdmin() {
                     {reimporting ? 'Esborrant...' : 'Confirmar'}
                   </button>
                   <button onClick={() => setConfirmReimport(false)} className="text-xs text-gray-600 px-3 py-1 rounded-lg border border-gray-200">
+                    Cancel·lar
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {confirmSync && (
+            <div className="bg-sagals-light border border-sagals rounded-lg p-3 mb-3 flex items-start gap-2">
+              <AlertTriangle size={16} className="text-sagals-dark shrink-0 mt-0.5" />
+              <div className="flex-1">
+                <p className="text-xs text-sagals-dark mb-2">Es tornaran a importar els participants des del formulari. S'esborraran els participants actuals. Continuar?</p>
+                <div className="flex gap-2">
+                  <button onClick={handleSyncFromForm} disabled={syncing} className="text-xs bg-sagals text-white px-3 py-1 rounded-lg disabled:opacity-50">
+                    {syncing ? 'Sincronitzant...' : 'Confirmar'}
+                  </button>
+                  <button onClick={() => setConfirmSync(false)} className="text-xs text-gray-600 px-3 py-1 rounded-lg border border-gray-200">
                     Cancel·lar
                   </button>
                 </div>
@@ -451,9 +485,14 @@ export default function EventAdmin() {
           {participants.length === 0 && !addingPart ? (
             <div className="text-center py-6">
               <p className="text-sm text-gray-400 mb-4">Cap participant importat encara</p>
-              <button onClick={() => navigate(`/events/${id}/setup`)} className="bg-sagals text-white px-4 py-2 rounded-lg text-sm font-medium">
-                Importar participants
-              </button>
+              <div className="flex items-center justify-center gap-3">
+                <button onClick={() => navigate(`/events/${id}/setup`)} className="bg-sagals text-white px-4 py-2 rounded-lg text-sm font-medium">
+                  Des de Excel
+                </button>
+                <button onClick={() => navigate(`/events/${id}/import-form`)} className="bg-sagals text-white px-4 py-2 rounded-lg text-sm font-medium">
+                  Des de formulari
+                </button>
+              </div>
             </div>
           ) : (
             <>

@@ -6,6 +6,7 @@ defmodule Sagals.Attendance do
 
   def mark_attendance(participant_trip_id, status, marked_by) do
     existing = Repo.get_by(Attendance, participant_trip_id: participant_trip_id)
+
     attrs = %{
       participant_trip_id: participant_trip_id,
       status: status,

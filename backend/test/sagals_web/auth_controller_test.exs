@@ -10,7 +10,8 @@ defmodule SagalsWeb.AuthControllerTest do
 
   describe "POST /api/auth/login" do
     test "returns token with valid credentials", %{conn: conn, user: user} do
-      resp = conn
+      resp =
+        conn
         |> post("/api/auth/login", %{email: user.email, password: "password123"})
         |> json_response(200)
 
@@ -33,10 +34,17 @@ defmodule SagalsWeb.AuthControllerTest do
 
   describe "POST /api/auth/exchange" do
     test "returns list JWT for valid access token", %{conn: conn} do
-      {:ok, event} = Events.create_event(%{name: "Fest", date: ~D[2025-01-01], slug: "fest-#{System.unique_integer()}"})
+      {:ok, event} =
+        Events.create_event(%{
+          name: "Fest",
+          date: ~D[2025-01-01],
+          slug: "fest-#{System.unique_integer()}"
+        })
+
       {:ok, activated} = Events.activate_event(event)
 
-      resp = conn
+      resp =
+        conn
         |> post("/api/auth/exchange", %{access_token: activated.access_token})
         |> json_response(200)
 
