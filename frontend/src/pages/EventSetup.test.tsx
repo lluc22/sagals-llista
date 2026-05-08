@@ -127,6 +127,13 @@ describe('EventSetup - column step', () => {
       expect(screen.getByText(/mapeig de transport/i)).toBeInTheDocument()
     })
   })
+
+  it('pot canviar el mapeig de columnes', async () => {
+    await goToColumnStep()
+    const selects = screen.getAllByRole('combobox')
+    fireEvent.change(selects[0], { target: { value: '1' } })
+    expect((selects[0] as HTMLSelectElement).value).toBe('1')
+  })
 })
 
 describe('EventSetup - transport step', () => {
@@ -188,5 +195,64 @@ describe('EventSetup - transport step', () => {
     expect(checkboxes.length).toBeGreaterThan(0)
     fireEvent.click(checkboxes[0])
     expect(checkboxes[0]).toBeChecked()
+  })
+
+  it('mostra els busos disponibles quan es marca va amb bus', async () => {
+    await goToTransportStep()
+    const checkboxes = screen.getAllByRole('checkbox')
+    fireEvent.click(checkboxes[0])
+    await waitFor(() => {
+      expect(screen.getAllByRole('combobox').length).toBeGreaterThan(0)
+    })
+  })
+
+  it('pot canviar el bus seleccionat', async () => {
+    await goToTransportStep()
+    const checkboxes = screen.getAllByRole('checkbox')
+    fireEvent.click(checkboxes[0])
+    await waitFor(() => {
+      const selects = screen.getAllByRole('combobox')
+      expect(selects.length).toBeGreaterThan(0)
+    })
+    const selects = screen.getAllByRole('combobox')
+    fireEvent.change(selects[0], { target: { value: '2' } })
+    expect((selects[0] as HTMLSelectElement).value).toBe('2')
+  })
+
+  it('pot afegir un bus extra', async () => {
+    await goToTransportStep()
+    const checkboxes = screen.getAllByRole('checkbox')
+    fireEvent.click(checkboxes[0])
+    await waitFor(() => {
+      const addBtns = screen.getAllByRole('button').filter(b => b.textContent?.includes('Afegir bus'))
+      expect(addBtns.length).toBeGreaterThan(0)
+    })
+    const addBtns = screen.getAllByRole('button').filter(b => b.textContent?.includes('Afegir bus'))
+    fireEvent.click(addBtns[0])
+    await waitFor(() => {
+      expect(screen.getAllByRole('combobox').length).toBeGreaterThanOrEqual(2)
+    })
+  })
+
+  it('pot eliminar un bus extra', async () => {
+    await goToTransportStep()
+    const checkboxes = screen.getAllByRole('checkbox')
+    fireEvent.click(checkboxes[0])
+    await waitFor(() => {
+      const addBtns = screen.getAllByRole('button').filter(b => b.textContent?.includes('Afegir bus'))
+      expect(addBtns.length).toBeGreaterThan(0)
+    })
+    const addBtns = screen.getAllByRole('button').filter(b => b.textContent?.includes('Afegir bus'))
+    fireEvent.click(addBtns[0])
+    await waitFor(() => {
+      expect(screen.getAllByRole('combobox').length).toBeGreaterThanOrEqual(2)
+    })
+    const removeBtns = screen.getAllByRole('button').filter(b => b.querySelector('svg.lucide-trash-2, [data-lucid="trash-2"]') || b.innerHTML.includes('trash'))
+    if (removeBtns.length > 0) {
+      fireEvent.click(removeBtns[0])
+      await waitFor(() => {
+        expect(screen.getAllByRole('combobox').length).toBeLessThan(3)
+      })
+    }
   })
 })

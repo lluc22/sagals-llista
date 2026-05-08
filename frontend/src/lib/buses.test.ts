@@ -55,4 +55,24 @@ describe('updateBus', () => {
     expect(result[0].direction).toBe('anada')
     expect(result[0].departure_time).toBe('')
   })
+
+  it('actualitza la direcció', () => {
+    const list = addBus([])
+    const result = updateBus(list, 0, { direction: 'tornada' })
+    expect(result[0].direction).toBe('tornada')
+    expect(result[0].label).toBe('')
+  })
+
+  it('actualitza l\'hora de sortida', () => {
+    const list = addBus([])
+    const result = updateBus(list, 0, { departure_time: '08:00' })
+    expect(result[0].departure_time).toBe('08:00')
+  })
+
+  it('preserva altres busos en la llista quan actualitza', () => {
+    const list = addBus(addBus([]))
+    const result = updateBus(list, 1, { label: 'Bus Tornada' })
+    expect(result[0].label).toBe('')
+    expect(result[1].label).toBe('Bus Tornada')
+  })
 })

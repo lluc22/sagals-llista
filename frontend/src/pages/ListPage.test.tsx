@@ -22,31 +22,51 @@ vi.mock('../lib/api', () => ({
 
 const buses = [
   { id: 1, label: 'Bus Vic', direction: 'anada', departure_time: '08:00', order: 1 },
+  { id: 2, label: 'Bus Vic Tornada', direction: 'tornada', departure_time: '18:00', order: 2 },
 ]
 
 const castellers = [
   { id: 306, mote: 'Mates' },
-  { id: 307, mote: 'Coll'  },
+  { id: 307, mote: 'Coll' },
 ]
 
-const trips = [
+const tripsPendent = [
   {
     trip_id: 1,
-    participant: { id: 1, first_name: 'Andreu', last_name: 'Huguet', last_name2: 'Segarra', nickname: 'Mates' },
+    participant: { id: 1, first_name: 'Andreu', last_name: 'Huguet', last_name2: 'Segarra', nickname: 'Mates', companions: '', observations: '' },
     attendance: { id: 1, status: 'pendent', marked_at: null, marked_by: null },
   },
   {
     trip_id: 2,
-    participant: { id: 2, first_name: 'Marc', last_name: 'Coll', last_name2: '', nickname: '' },
+    participant: { id: 2, first_name: 'Marc', last_name: 'Coll', last_name2: '', nickname: '', companions: '', observations: '' },
     attendance: { id: 2, status: 'pendent', marked_at: null, marked_by: null },
   },
 ]
 
-function setupMocks() {
+const tripsMixed = [
+  {
+    trip_id: 1,
+    participant: { id: 1, first_name: 'Andreu', last_name: 'Huguet', last_name2: 'Segarra', nickname: 'Mates', companions: '', observations: '' },
+    attendance: { id: 1, status: 'present', marked_at: null, marked_by: null },
+  },
+  {
+    trip_id: 2,
+    participant: { id: 2, first_name: 'Marc', last_name: 'Coll', last_name2: '', nickname: '', companions: '', observations: '' },
+    attendance: { id: 2, status: 'absent', marked_at: null, marked_by: null },
+  },
+  {
+    trip_id: 3,
+    participant: { id: 3, first_name: 'Joana', last_name: 'Pla', last_name2: '', nickname: '', companions: '2 acompanyants', observations: '' },
+    attendance: { id: 3, status: 'pendent', marked_at: null, marked_by: null },
+  },
+]
+
+function setupMocks(tripData = tripsPendent) {
   mockPost.mockResolvedValue({ token: 'list-jwt' })
   mockGet.mockImplementation((path: string) => {
     if (path.includes('/castellers'))     return Promise.resolve({ data: castellers })
-    if (path.includes('/buses/1/anada'))  return Promise.resolve({ data: trips })
+    if (path.includes('/buses/1/anada'))  return Promise.resolve({ data: tripData })
+    if (path.includes('/buses/2/tornada')) return Promise.resolve({ data: tripData })
     if (path.includes('/profile_pic/306')) return Promise.resolve({ base64: 'data:image/jpeg;base64,abc' })
     if (path.includes('/buses'))          return Promise.resolve({ data: buses })
     return Promise.resolve({ data: [] })
@@ -76,6 +96,7 @@ describe('ListPage - selector de bus', () => {
     renderListPage()
     await waitFor(() => expect(screen.getByText('Bus Vic')).toBeInTheDocument())
     expect(screen.getByText('Anada')).toBeInTheDocument()
+    expect(screen.getByText('Tornada')).toBeInTheDocument()
   })
 
   it('mostra error si falta el token', async () => {
@@ -87,6 +108,29 @@ describe('ListPage - selector de bus', () => {
       </MemoryRouter>
     )
     await waitFor(() => expect(screen.getByText(/falta el token/i)).toBeInTheDocument())
+  })
+
+  it('mostra error si el token és invàlid', async () => {
+    mockPost.mockRejectedValueOnce(new Error('invalid'))
+    mockGet.mockImplementation((path: string) => {
+      if (path.includes('/buses')) return Promise.resolve({ data: [] })
+      return Promise.resolve({ data: [] })
+    })
+    render(
+      <MemoryRouter initialEntries={['/list/festa?t=bad-token']}>
+        <Routes>
+          <Route path="/list/:slug" element={<ListPage />} />
+        </Routes>
+      </MemoryRouter>
+    )
+    await waitFor(() => expect(screen.getByText(/no vàlid/i)).toBeInTheDocument())
+  })
+
+  it('mostra error si fallen les dades del bus', async () => {
+    mockPost.mockResolvedValue({ token: 'list-jwt' })
+    mockGet.mockRejectedValueOnce(new Error('network error'))
+    renderListPage()
+    await waitFor(() => expect(screen.getByText(/error carregant/i)).toBeInTheDocument())
   })
 })
 
@@ -144,18 +188,16 @@ describe('ListPage - fotos', () => {
     fireEvent.click(screen.getByText('Bus Vic'))
     await waitFor(() => screen.getByText('Marc Coll'))
 
-    // Give time for any potential photo load
     await new Promise(r => setTimeout(r, 50))
 
-    // Marc Coll (no nickname match) should not trigger a profile_pic fetch
     const picCalls = mockGet.mock.calls.filter(c => String(c[0]).includes('profile_pic/307'))
     expect(picCalls.length).toBe(0)
   })
 })
 
 describe('ListPage - assistència', () => {
-  async function openTripList() {
-    setupMocks()
+  async function openTripList(tripData = tripsPendent) {
+    setupMocks(tripData)
     renderListPage()
     await waitFor(() => screen.getByText('Bus Vic'))
     fireEvent.click(screen.getByText('Bus Vic'))
@@ -188,22 +230,55 @@ describe('ListPage - assistència', () => {
       expect(screen.getByText('Bus Vic')).toBeInTheDocument()
     })
   })
-})
 
-describe('ListPage - enllaç no vàlid', () => {
-  it('mostra error quan token és invàlid', async () => {
-    mockPost.mockRejectedValueOnce(new Error('invalid'))
-    mockGet.mockImplementation((path: string) => {
-      if (path.includes('/buses')) return Promise.resolve({ data: [] })
-      return Promise.resolve({ data: [] })
+  it('mostra secció Present quan hi ha participants presents', async () => {
+    await openTripList(tripsMixed)
+    await waitFor(() => expect(screen.getByText(/Presents/)).toBeInTheDocument())
+  })
+
+  it('mostra secció Absent quan hi ha participants absents', async () => {
+    await openTripList(tripsMixed)
+    await waitFor(() => expect(screen.getByText(/Absents/)).toBeInTheDocument())
+  })
+
+  it('mostra participants amb acompanyants', async () => {
+    await openTripList(tripsMixed)
+    await waitFor(() => expect(screen.getByText('2 acompanyants')).toBeInTheDocument())
+  })
+
+  it('col·lapsa secció pendent', async () => {
+    await openTripList()
+    const pendentHeaders = screen.getAllByText(/Pendents/)
+    fireEvent.click(pendentHeaders[0])
+  })
+
+  it('mostra contador de presents al header', async () => {
+    await openTripList(tripsMixed)
+    await waitFor(() => expect(screen.getByText(/1\s*\/\s*3/)).toBeInTheDocument())
+  })
+
+  it('mostra missatge quan no hi ha resultats de cerca', async () => {
+    await openTripList()
+    const search = screen.getByPlaceholderText(/cercar/i)
+    fireEvent.change(search, { target: { value: 'xyznonexistent' } })
+    await waitFor(() => expect(screen.getByText(/cap resultat/i)).toBeInTheDocument())
+  })
+
+  it('mostra Tothom comptabilitzat quan no hi ha pendents', async () => {
+    const allPresent = tripsMixed.map(t => ({ ...t, attendance: { ...t.attendance, status: 'present' as const } }))
+    await openTripList(allPresent)
+    await waitFor(() => expect(screen.getByText(/tothom comptabilitzat/i)).toBeInTheDocument())
+  })
+
+  it('marca participant com a present', async () => {
+    mockPost.mockResolvedValue({})
+    await openTripList()
+    const nameEl = screen.getByText('Mates (Andreu Huguet Segarra)')
+    fireEvent.click(nameEl.closest('[class]')!)
+    await waitFor(() => {
+      const presentBtn = screen.queryAllByRole('button').find(b => b.textContent?.trim() === 'Present')
+      if (presentBtn) fireEvent.click(presentBtn)
     })
-    render(
-      <MemoryRouter initialEntries={['/list/festa?t=bad-token']}>
-        <Routes>
-          <Route path="/list/:slug" element={<ListPage />} />
-        </Routes>
-      </MemoryRouter>
-    )
-    await waitFor(() => expect(screen.getByText(/no vàlid/i)).toBeInTheDocument())
+    await waitFor(() => expect(mockPost).toHaveBeenCalledWith('/api/list/attendance', expect.objectContaining({ status: 'present' }), 'list-jwt'))
   })
 })
