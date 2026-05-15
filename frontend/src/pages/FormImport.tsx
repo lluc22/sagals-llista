@@ -37,7 +37,7 @@ function detectTextQuestion(elements: TenimaletaForm['elements'], keywords: stri
   })[0]?.id ?? ''
 }
 
-function getOptionLabels(elements: TenimaletaForm['elements'], questionId: string): Record<string, string> {
+export function getOptionLabels(elements: TenimaletaForm['elements'], questionId: string): Record<string, string> {
   const el = elements.find(e => e.id === questionId)
   if (!el || !el.content.options) return {}
   const opts = el.content.options
@@ -48,7 +48,7 @@ function getOptionLabels(elements: TenimaletaForm['elements'], questionId: strin
   return result
 }
 
-function getUniqueTransportValues(
+export function getUniqueTransportValues(
   responses: Record<string, TenimaletaFormResponse>,
   questionId: string,
   elements: TenimaletaForm['elements']
@@ -84,20 +84,20 @@ function getUniqueTransportValues(
   return Array.from(values).map(v => v.trim()).sort()
 }
 
-function resolveTransportValue(raw: unknown, optLabels: Record<string, string>): string {
-  if (typeof raw === 'number') return optLabels[String(raw)] ?? String(raw)
-  if (typeof raw === 'string') return raw
+export function resolveTransportValue(raw: unknown, optLabels: Record<string, string>): string {
+  if (typeof raw === 'number') return (optLabels[String(raw)] ?? String(raw)).trim()
+  if (typeof raw === 'string') return raw.trim()
   if (Array.isArray(raw)) {
     return raw.map(item => {
-      if (typeof item === 'number') return optLabels[String(item)] ?? String(item)
-      return String(item)
+      if (typeof item === 'number') return (optLabels[String(item)] ?? String(item)).trim()
+      return String(item).trim()
     }).join(', ')
   }
   if (typeof raw === 'object' && raw !== null) {
     const labels: string[] = []
     for (const [k, v] of Object.entries(raw as Record<string, unknown>)) {
       if (v !== undefined && v !== null && v !== '' && v !== 0) {
-        labels.push(optLabels[k] ?? k)
+        labels.push((optLabels[k] ?? k).trim())
       }
     }
     return labels.join(', ')
