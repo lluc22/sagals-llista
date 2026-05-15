@@ -150,26 +150,72 @@ defmodule Sagals.Events do
           if String.trim(k) == trimmed, do: v
         end)
 
-    if is_nil(rule) || !rule["usesBus"] do
-      []
-    else
-      Enum.flat_map(rule["buses"], fn entry ->
-        bus_id =
-          if is_integer(entry["busId"]),
-            do: entry["busId"],
-            else: String.to_integer(entry["busId"])
+    if rule do
+      buses = Map.get(rule, "buses", [])
+      uses_bus = Map.get(rule, "usesBus", false)
 
-        directions = expand_direction(entry["direction"])
+      if uses_bus and buses != [] do
+        Enum.flat_map(buses, fn entry ->
+          bus_id =
+            if is_integer(entry["busId"]),
+              do: entry["busId"],
+              else: String.to_integer(entry["busId"])
 
-        Enum.map(directions, fn dir ->
-          ParticipantTrip.changeset(%ParticipantTrip{}, %{
-            participant_id: participant_id,
-            bus_id: bus_id,
-            direction: dir
-          })
+          directions = expand_direction(entry["direction"])
+
+          Enum.map(directions, fn dir ->
+            ParticipantTrip.changeset(%ParticipantTrip{}, %{
+              participant_id: participant_id,
+              bus_id: bus_id,
+              direction: dir
+            })
+          end)
         end)
-      end)
+      else
+        []
+      end
+    else
+      build_trips_from_parts(participant_id, trimmed, transport_mapping)
     end
+  end
+
+  defp build_trips_from_parts(participant_id, transport_raw, transport_mapping) do
+    parts =
+      transport_raw
+      |> String.split(",")
+      |> Enum.map(&String.trim/1)
+      |> Enum.filter(&(&1 != ""))
+
+    Enum.flat_map(parts, fn part ->
+      rule =
+        Map.get(transport_mapping, part) ||
+          Enum.find_value(transport_mapping, fn {k, v} ->
+            if String.trim(k) == part, do: v
+          end)
+
+      if is_nil(rule) || !Map.get(rule, "usesBus", false) do
+        []
+      else
+        buses = Map.get(rule, "buses", [])
+
+        Enum.flat_map(buses, fn entry ->
+          bus_id =
+            if is_integer(entry["busId"]),
+              do: entry["busId"],
+              else: String.to_integer(entry["busId"])
+
+          directions = expand_direction(entry["direction"])
+
+          Enum.map(directions, fn dir ->
+            ParticipantTrip.changeset(%ParticipantTrip{}, %{
+              participant_id: participant_id,
+              bus_id: bus_id,
+              direction: dir
+            })
+          end)
+        end)
+      end
+    end)
   end
 
   defp expand_direction(dir), do: [dir]

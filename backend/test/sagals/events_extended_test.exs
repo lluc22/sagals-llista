@@ -176,6 +176,99 @@ defmodule Sagals.EventsTest.Extended do
       assert length(participants) == 1
       assert hd(participants).participant_trips == []
     end
+
+    test "splits combined transport values when no exact match", %{
+      event: event,
+      bus1: bus1,
+      bus2: bus2
+    } do
+      transport_mapping = %{
+        "Anada" => %{
+          "usesBus" => true,
+          "buses" => [%{"busId" => bus1.id, "direction" => "anada"}]
+        },
+        "Tornada" => %{
+          "usesBus" => true,
+          "buses" => [%{"busId" => bus2.id, "direction" => "tornada"}]
+        }
+      }
+
+      rows = [
+        %{
+          first_name: "Anna",
+          last_name: "Vila",
+          last_name2: "",
+          nickname: "",
+          transport_raw: "Anada, Tornada"
+        }
+      ]
+
+      {:ok, 1} = Events.import_participants(event, rows, transport_mapping)
+      participants = Events.list_participants_with_trips(event)
+      assert length(participants) == 1
+      trips = hd(participants).participant_trips
+      assert length(trips) == 2
+
+      bus_ids = Enum.map(trips, & &1.bus_id) |> Enum.sort()
+      assert bus_ids == [bus1.id, bus2.id]
+    end
+
+    test "handles checkbox values with multiple selections", %{
+      event: event,
+      bus1: bus1,
+      bus2: bus2
+    } do
+      transport_mapping = %{
+        "Anada" => %{
+          "usesBus" => true,
+          "buses" => [%{"busId" => bus1.id, "direction" => "anada"}]
+        },
+        "Tornada" => %{
+          "usesBus" => true,
+          "buses" => [%{"busId" => bus2.id, "direction" => "tornada"}]
+        },
+        "No vinc amb bus" => %{
+          "usesBus" => false,
+          "buses" => []
+        }
+      }
+
+      rows = [
+        %{
+          first_name: "Pau",
+          last_name: "Serra",
+          last_name2: "",
+          nickname: "",
+          transport_raw: "Anada, Tornada"
+        },
+        %{
+          first_name: "Joan",
+          last_name: "Pla",
+          last_name2: "",
+          nickname: "",
+          transport_raw: "Anada"
+        },
+        %{
+          first_name: "Maria",
+          last_name: "Garcia",
+          last_name2: "",
+          nickname: "",
+          transport_raw: "No vinc amb bus"
+        }
+      ]
+
+      {:ok, 3} = Events.import_participants(event, rows, transport_mapping)
+      participants = Events.list_participants_with_trips(event)
+
+      pau = Enum.find(participants, &(&1.first_name == "Pau"))
+      assert length(pau.participant_trips) == 2
+
+      joan = Enum.find(participants, &(&1.first_name == "Joan"))
+      assert length(joan.participant_trips) == 1
+
+      maria = Enum.find(participants, &(&1.first_name == "Maria"))
+      assert length(maria.participant_trips) == 0
+    end
   end
 
   describe "import_form_participants/2" do

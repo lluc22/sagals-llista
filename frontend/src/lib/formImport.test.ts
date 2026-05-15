@@ -28,6 +28,17 @@ describe('resolveTransportValue', () => {
     expect(resolveTransportValue({ '0': 1 }, optLabels)).toBe('Anada')
   })
 
+  it('ignores false checkbox values', () => {
+    const optLabels = { '0': 'Anada', '1': 'Tornada' }
+    expect(resolveTransportValue({ '0': true, '1': false }, optLabels)).toBe('Anada')
+    expect(resolveTransportValue({ '0': false, '1': true }, optLabels)).toBe('Tornada')
+  })
+
+  it('handles checkbox with true values', () => {
+    const optLabels = { '0': 'Anada', '1': 'Tornada' }
+    expect(resolveTransportValue({ '0': true, '1': true }, optLabels)).toBe('Anada, Tornada')
+  })
+
   it('returns empty string for null/undefined', () => {
     expect(resolveTransportValue(null, {})).toBe('')
     expect(resolveTransportValue(undefined, {})).toBe('')
@@ -44,6 +55,17 @@ describe('getOptionLabels', () => {
       }
     ]
     expect(getOptionLabels(elements, 'q1')).toEqual({ '0': 'Anada', '1': 'Tornada' })
+  })
+
+  it('handles options with price objects', () => {
+    const elements = [
+      {
+        id: 'q1',
+        type: 'checkbox',
+        content: { question: 'Transport', options: [{ text: 'Option 1', price: 10 }, { text: 'Option 2', price: 20 }] }
+      }
+    ]
+    expect(getOptionLabels(elements, 'q1')).toEqual({ '0': 'Option 1', '1': 'Option 2' })
   })
 
   it('returns empty object for missing question', () => {
@@ -83,5 +105,37 @@ describe('getUniqueTransportValues', () => {
     const result = getUniqueTransportValues(responses, 'q1', elements)
     expect(result).toContain('Anada')
     expect(result).toContain('Tornada')
+  })
+
+  it('ignores false checkbox values', () => {
+    const elements = [
+      {
+        id: 'q1',
+        type: 'checkbox',
+        content: { question: 'Transport', options: ['Anada', 'Tornada', 'No vinc amb bus'] }
+      }
+    ]
+    const responses = {
+      '1': { q1: { '0': true, '1': false, '2': false } },
+      '2': { q1: { '0': false, '1': false, '2': true } }
+    }
+    const result = getUniqueTransportValues(responses, 'q1', elements)
+    expect(result).toEqual(['Anada', 'No vinc amb bus'])
+  })
+
+  it('separates individual options from combined selections', () => {
+    const elements = [
+      {
+        id: 'q1',
+        type: 'checkbox',
+        content: { question: 'Transport', options: ['Anada', 'Tornada', 'No vinc amb bus'] }
+      }
+    ]
+    const responses = {
+      '1': { q1: { '0': true, '1': true } },
+      '2': { q1: { '0': true } }
+    }
+    const result = getUniqueTransportValues(responses, 'q1', elements)
+    expect(result.sort()).toEqual(['Anada', 'Tornada'])
   })
 })

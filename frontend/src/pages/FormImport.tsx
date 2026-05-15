@@ -60,28 +60,28 @@ export function getUniqueTransportValues(
     if (raw === undefined || raw === null || raw === '') continue
     if (typeof raw === 'number') {
       const label = optLabels[String(raw)]
-      if (label) values.add(label)
+      if (label) values.add(label.trim())
     } else if (typeof raw === 'string') {
-      values.add(raw)
+      values.add(raw.trim())
     } else if (Array.isArray(raw)) {
       for (const item of raw) {
         if (typeof item === 'number') {
           const label = optLabels[String(item)]
-          if (label) values.add(label)
+          if (label) values.add(label.trim())
         } else if (typeof item === 'string') {
-          values.add(item)
+          values.add(item.trim())
         }
       }
     } else if (typeof raw === 'object') {
       for (const [k, v] of Object.entries(raw as Record<string, unknown>)) {
-        if (v !== undefined && v !== null && v !== '' && v !== 0) {
+        if (v === true || (typeof v === 'number' && v > 0)) {
           const label = optLabels[k]
-          if (label) values.add(label)
+          if (label) values.add(label.trim())
         }
       }
     }
   }
-  return Array.from(values).map(v => v.trim()).sort()
+  return Array.from(values).sort()
 }
 
 export function resolveTransportValue(raw: unknown, optLabels: Record<string, string>): string {
@@ -96,7 +96,7 @@ export function resolveTransportValue(raw: unknown, optLabels: Record<string, st
   if (typeof raw === 'object' && raw !== null) {
     const labels: string[] = []
     for (const [k, v] of Object.entries(raw as Record<string, unknown>)) {
-      if (v !== undefined && v !== null && v !== '' && v !== 0) {
+      if (v === true || (typeof v === 'number' && v > 0)) {
         labels.push((optLabels[k] ?? k).trim())
       }
     }
