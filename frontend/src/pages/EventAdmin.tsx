@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { ArrowLeft, Copy, CheckCircle, Pencil, Trash2, Plus, X, Save, AlertTriangle, Users, MessageSquare, Share2, ExternalLink, RefreshCw, Power } from 'lucide-react'
 import { api } from '../lib/api'
+import { normalize } from '../lib/search'
 import type { Event, Bus, Participant } from '../types'
 
 const STATUS_LABELS: Record<string, string> = {
@@ -254,8 +255,8 @@ export default function EventAdmin() {
 
   const filtered = sorted.filter(p => {
     if (!search) return true
-    const q = search.toLowerCase()
-    return [p.first_name, p.last_name, p.last_name2, p.nickname].some(s => s?.toLowerCase().includes(q))
+    const q = normalize(search)
+    return [p.first_name, p.last_name, p.last_name2, p.nickname].some(s => s && normalize(s).includes(q))
   })
 
   const needsAttention = filtered.filter(p => (p.companions || p.observations) && !p.reviewed)

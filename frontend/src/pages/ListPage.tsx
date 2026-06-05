@@ -2,6 +2,7 @@ import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { useParams, useSearchParams } from 'react-router-dom'
 import { Users, MessageSquare } from 'lucide-react'
 import { api } from '../lib/api'
+import { normalize } from '../lib/search'
 import { connectSocket, joinAttendanceChannel, disconnectSocket } from '../lib/socket'
 import type { Bus, TripWithAttendance } from '../types'
 
@@ -343,9 +344,9 @@ export default function ListPage() {
 
   const filtered = trips.filter(t => {
     if (!search) return true
-    const q = search.toLowerCase()
+    const q = normalize(search)
     const { first_name, last_name, last_name2, nickname } = t.participant
-    return [first_name, last_name, last_name2, nickname].some(s => s?.toLowerCase().includes(q))
+    return [first_name, last_name, last_name2, nickname].some(s => s && normalize(s).includes(q))
   })
 
   const pendents = filtered.filter(t => t.attendance.status === 'pendent')

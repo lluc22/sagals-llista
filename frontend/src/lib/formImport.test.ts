@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest'
 import { getOptionLabels, getUniqueTransportValues, resolveTransportValue, formTitle } from '../pages/FormImport'
+import { normalize } from './search'
 import type { TenimaletaForm, TenimaletaCalendarEvent } from '../types'
 
 describe('resolveTransportValue', () => {
