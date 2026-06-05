@@ -123,7 +123,31 @@ defmodule Sagals.TenimaletaTest do
   end
 
   describe "get_calendar/0" do
-    test "returns ok with calendar data when API responds 200" do
+    test "returns ok with calendar data when API responds 200 with calendar_events array" do
+      Req.Test.stub(:tenimaleta, fn conn ->
+        Req.Test.json(conn, %{
+          "calendar_events" => %{
+            "events" => [
+              %{
+                "id" => 1_000_951,
+                "title" => "Actuació a Santpedor",
+                "data-esperada-inici" => "2025-06-14T10:00:00Z",
+                "data-esperada-fi" => "2025-06-14T14:00:00Z"
+              }
+            ]
+          },
+          "events_to_be_deleted" => []
+        })
+      end)
+
+      Application.put_env(:sagals, :req_options, plug: {Req.Test, :tenimaleta})
+      on_exit(fn -> Application.delete_env(:sagals, :req_options) end)
+
+      assert {:ok, calendar} = Tenimaleta.get_calendar()
+      assert %{"1000951" => %{"title" => "Actuació a Santpedor"}} = calendar
+    end
+
+    test "returns ok with calendar data when API responds 200 with map body" do
       Req.Test.stub(:tenimaleta, fn conn ->
         Req.Test.json(conn, %{
           "1000951" => %{

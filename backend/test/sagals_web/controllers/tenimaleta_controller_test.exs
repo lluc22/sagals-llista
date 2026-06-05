@@ -57,12 +57,17 @@ defmodule SagalsWeb.TenimaletaControllerTest do
 
         String.contains?(conn.request_path, "calendar") ->
           Req.Test.json(conn, %{
-            "1000951" => %{
-              "id" => "1000951",
-              "title" => "Actuació a Santpedor",
-              "start" => "2025-06-14T10:00:00",
-              "end" => "2025-06-14T14:00:00"
-            }
+            "calendar_events" => %{
+              "events" => [
+                %{
+                  "id" => 1_000_951,
+                  "title" => "Actuació a Santpedor",
+                  "data-esperada-inici" => "2025-06-14T10:00:00Z",
+                  "data-esperada-fi" => "2025-06-14T14:00:00Z"
+                }
+              ]
+            },
+            "events_to_be_deleted" => []
           })
 
         String.contains?(conn.request_path, "form_responses") ->
