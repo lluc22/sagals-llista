@@ -132,6 +132,13 @@ export interface TenimaletaCasteller {
   soci: number
 }
 
+export interface TenimaletaCalendarEvent {
+  id: string
+  title: string
+  start: string
+  end: string
+}
+
 export interface TenimaletaFormResponse {
   mote: string
   createdAt: string

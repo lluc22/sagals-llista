@@ -3,7 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom'
 import { ArrowLeft, Loader2, Plus, Trash2 } from 'lucide-react'
 import { api } from '../lib/api'
 import { addBus, removeBus, updateBus, type BusDraft } from '../lib/buses'
-import type { TenimaletaForm, TenimaletaFormResponse, TenimaletaCasteller, Event, Bus, TransportBusEntry, FormMapping } from '../types'
+import type { TenimaletaForm, TenimaletaFormResponse, TenimaletaCasteller, TenimaletaCalendarEvent, Event, Bus, TransportBusEntry, FormMapping } from '../types'
 
 type Step = 'select-form' | 'questions' | 'buses' | 'transport'
 
@@ -136,6 +136,13 @@ const FIELD_LABELS: Record<string, string> = {
   companions: 'Acompanyants',
 }
 
+export function formTitle(formId: string, f: TenimaletaForm, calendarEvents: Record<string, TenimaletaCalendarEvent>): string {
+  if (f.title?.trim()) return f.title
+  const calEvent = calendarEvents[formId]
+  if (calEvent?.title?.trim()) return calEvent.title
+  return `Formulari ${formId}`
+}
+
 export default function FormImport() {
   const { id: existingEventId } = useParams<{ id?: string }>()
   const navigate = useNavigate()
@@ -150,6 +157,7 @@ export default function FormImport() {
   const [selectedFormId, setSelectedFormId] = useState<string | null>(null)
   const [responses, setResponses] = useState<Record<string, TenimaletaFormResponse>>({})
   const [castellers, setCastellers] = useState<Record<string, TenimaletaCasteller>>({})
+  const [calendarEvents, setCalendarEvents] = useState<Record<string, TenimaletaCalendarEvent>>({})
 
   const [eventName, setEventName] = useState('')
   const [eventDate, setEventDate] = useState('')
@@ -172,10 +180,12 @@ export default function FormImport() {
         api.get<{ data: Event }>(`/api/events/${existingEventId}`).then(r => r.data),
         api.get<{ data: Bus[] }>(`/api/events/${existingEventId}/buses`).then(r => r.data),
         api.get<{ data: Record<string, TenimaletaForm> }>('/api/tenimaleta/forms').then(r => r.data),
-      ]).then(([ev, bs, formsData]) => {
+        api.get<{ data: Record<string, TenimaletaCalendarEvent> }>('/api/tenimaleta/calendar').then(r => r.data),
+      ]).then(([ev, bs, formsData, calData]) => {
         setExistingEvent(ev)
         setExistingBuses(bs)
         setForms(formsData)
+        setCalendarEvents(calData)
         setEventName(ev.name)
         setEventDate(ev.date)
         if (ev.form_id) {
@@ -245,7 +255,12 @@ export default function FormImport() {
       })
     } else {
       api.get<{ data: Record<string, TenimaletaForm> }>('/api/tenimaleta/forms')
-        .then(res => { setForms(res.data); setLoading(false) })
+        .then(res => {
+          setForms(res.data)
+          api.get<{ data: Record<string, TenimaletaCalendarEvent> }>('/api/tenimaleta/calendar')
+            .then(calRes => { setCalendarEvents(calRes.data); setLoading(false) })
+            .catch(() => { setLoading(false) })
+        })
         .catch(() => { setError('No es poden carregar els formularis'); setLoading(false) })
     }
   }, [isExistingEvent, existingEventId])
@@ -257,7 +272,7 @@ export default function FormImport() {
     setSelectedFormId(formId)
     const f = forms[formId]
     if (!f) return
-    if (!isExistingEvent) setEventName(f.title || `Formulari ${formId}`)
+    if (!isExistingEvent) setEventName(formTitle(formId, f, calendarEvents))
 
     const autoTransport = detectTransportQuestion(f.elements)
     const autoObs = detectTextQuestion(f.elements, ['bservacions', 'aspectes', 'comentar', 'al·lèrg', 'intoleràncies'])
@@ -557,7 +572,7 @@ export default function FormImport() {
                   onClick={() => selectForm(id)}
                   className="w-full bg-white rounded-xl border border-gray-100 p-4 text-left hover:border-sagals transition-colors shadow-sm"
                 >
-                  <p className="font-semibold text-gray-900">{f.title || `Formulari ${id}`}</p>
+                  <p className="font-semibold text-gray-900">{formTitle(id, f, calendarEvents)}</p>
                   <p className="text-xs text-gray-500 mt-1">
                     {f.closingDate ? `Tanca: ${new Date(f.closingDate).toLocaleDateString('ca-ES')}` : 'Sense data de tancament'}
                     {' · '}{f.elements?.length ?? 0} preguntes
@@ -570,7 +585,7 @@ export default function FormImport() {
           {step === 'questions' && form && (
             <div className="space-y-4">
               <div className="bg-white rounded-xl border border-gray-100 p-4 space-y-3">
-                <h2 className="font-medium text-gray-900">{form.title || `Formulari ${selectedFormId}`}</h2>
+                <h2 className="font-medium text-gray-900">{formTitle(selectedFormId!, form!, calendarEvents)}</h2>
                 <p className="text-xs text-gray-500">{Object.keys(responses).length} respostes</p>
 
                 {!isExistingEvent && (

@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest'
-import { getOptionLabels, getUniqueTransportValues, resolveTransportValue } from '../pages/FormImport'
+import { getOptionLabels, getUniqueTransportValues, resolveTransportValue, formTitle } from '../pages/FormImport'
+import type { TenimaletaForm, TenimaletaCalendarEvent } from '../types'
 
 describe('resolveTransportValue', () => {
   it('trims string values', () => {
@@ -137,5 +138,62 @@ describe('getUniqueTransportValues', () => {
     }
     const result = getUniqueTransportValues(responses, 'q1', elements)
     expect(result.sort()).toEqual(['Anada', 'Tornada'])
+  })
+})
+
+describe('formTitle', () => {
+  const baseForm: TenimaletaForm = {
+    title: '',
+    description: '',
+    elements: [],
+    order: [],
+    required: false,
+    hidden: false,
+    openingDate: null,
+    closingDate: null,
+    new: false,
+  }
+
+  it('returns form title when present', () => {
+    const form = { ...baseForm, title: 'Actuació a Vic' }
+    expect(formTitle('1001', form, {})).toBe('Actuació a Vic')
+  })
+
+  it('returns form title when it is whitespace-only', () => {
+    const form = { ...baseForm, title: '   ' }
+    expect(formTitle('1001', form, {})).toBe('Formulari 1001')
+  })
+
+  it('falls back to calendar event title when form title is empty', () => {
+    const calendarEvents: Record<string, TenimaletaCalendarEvent> = {
+      '1000951': { id: '1000951', title: 'Actuació a Santpedor', start: '2025-06-14T10:00:00', end: '2025-06-14T14:00:00' },
+    }
+    expect(formTitle('1000951', baseForm, calendarEvents)).toBe('Actuació a Santpedor')
+  })
+
+  it('prefers form title over calendar title', () => {
+    const form = { ...baseForm, title: 'Diada de Sant Joan' }
+    const calendarEvents: Record<string, TenimaletaCalendarEvent> = {
+      '1001': { id: '1001', title: 'Actuació a Santpedor', start: '2025-06-14T10:00:00', end: '2025-06-14T14:00:00' },
+    }
+    expect(formTitle('1001', form, calendarEvents)).toBe('Diada de Sant Joan')
+  })
+
+  it('falls back to Formulari {id} when neither title exists', () => {
+    expect(formTitle('9999', baseForm, {})).toBe('Formulari 9999')
+  })
+
+  it('falls back to Formulari {id} when calendar event has empty title', () => {
+    const calendarEvents: Record<string, TenimaletaCalendarEvent> = {
+      '9999': { id: '9999', title: '', start: '2025-01-01T00:00:00', end: '2025-01-01T23:59:59' },
+    }
+    expect(formTitle('9999', baseForm, calendarEvents)).toBe('Formulari 9999')
+  })
+
+  it('falls back to calendar title when form title is empty and calendar title has whitespace', () => {
+    const calendarEvents: Record<string, TenimaletaCalendarEvent> = {
+      '1001': { id: '1001', title: '  Actuació  ', start: '2025-06-14T10:00:00', end: '2025-06-14T14:00:00' },
+    }
+    expect(formTitle('1001', baseForm, calendarEvents)).toBe('  Actuació  ')
   })
 })

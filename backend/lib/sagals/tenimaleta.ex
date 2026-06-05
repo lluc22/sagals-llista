@@ -34,6 +34,19 @@ defmodule Sagals.Tenimaleta do
     end
   end
 
+  def get_calendar do
+    case Req.get("#{@base_url}/calendar", req_options_with_auth()) do
+      {:ok, %{status: 200, body: body}} when is_map(body) ->
+        {:ok, body}
+
+      {:ok, %{status: status}} ->
+        {:error, "API returned status #{status}"}
+
+      {:error, reason} ->
+        {:error, reason}
+    end
+  end
+
   def get_castellers do
     case Req.get("#{@base_url}/castellersInfo", req_options_with_auth()) do
       {:ok, %{status: 200, body: body}} when is_map(body) ->

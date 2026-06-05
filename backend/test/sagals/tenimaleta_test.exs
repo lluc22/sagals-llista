@@ -121,4 +121,36 @@ defmodule Sagals.TenimaletaTest do
       assert {:error, _} = Tenimaleta.get_form_responses("999")
     end
   end
+
+  describe "get_calendar/0" do
+    test "returns ok with calendar data when API responds 200" do
+      Req.Test.stub(:tenimaleta, fn conn ->
+        Req.Test.json(conn, %{
+          "1000951" => %{
+            "id" => "1000951",
+            "title" => "Actuació a Santpedor",
+            "start" => "2025-06-14T10:00:00",
+            "end" => "2025-06-14T14:00:00"
+          }
+        })
+      end)
+
+      Application.put_env(:sagals, :req_options, plug: {Req.Test, :tenimaleta})
+      on_exit(fn -> Application.delete_env(:sagals, :req_options) end)
+
+      assert {:ok, calendar} = Tenimaleta.get_calendar()
+      assert is_map(calendar)
+    end
+
+    test "returns error when API responds with non-200 status" do
+      Req.Test.stub(:tenimaleta, fn conn ->
+        Plug.Conn.send_resp(conn, 500, "Internal Server Error")
+      end)
+
+      Application.put_env(:sagals, :req_options, plug: {Req.Test, :tenimaleta})
+      on_exit(fn -> Application.delete_env(:sagals, :req_options) end)
+
+      assert {:error, _} = Tenimaleta.get_calendar()
+    end
+  end
 end

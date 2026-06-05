@@ -42,6 +42,7 @@ defmodule SagalsWeb.Router do
 
     get "/tenimaleta/forms", TenimaletaController, :forms
     get "/tenimaleta/forms/:form_id/responses", TenimaletaController, :form_responses
+    get "/tenimaleta/calendar", TenimaletaController, :calendar
     get "/tenimaleta/castellers", TenimaletaController, :castellers
   end
 

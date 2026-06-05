@@ -23,6 +23,16 @@ defmodule SagalsWeb.TenimaletaController do
     end
   end
 
+  def calendar(conn, _params) do
+    case Tenimaleta.get_calendar() do
+      {:ok, calendar} ->
+        json(conn, %{data: calendar})
+
+      {:error, _reason} ->
+        conn |> put_status(:bad_gateway) |> json(%{error: "Cannot fetch calendar"})
+    end
+  end
+
   def castellers(conn, _params) do
     case Tenimaleta.get_castellers() do
       {:ok, castellers} ->

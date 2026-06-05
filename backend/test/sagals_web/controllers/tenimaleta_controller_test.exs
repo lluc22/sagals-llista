@@ -55,6 +55,16 @@ defmodule SagalsWeb.TenimaletaControllerTest do
             }
           })
 
+        String.contains?(conn.request_path, "calendar") ->
+          Req.Test.json(conn, %{
+            "1000951" => %{
+              "id" => "1000951",
+              "title" => "Actuació a Santpedor",
+              "start" => "2025-06-14T10:00:00",
+              "end" => "2025-06-14T14:00:00"
+            }
+          })
+
         String.contains?(conn.request_path, "form_responses") ->
           Req.Test.json(conn, %{
             "1" => %{"mote" => "Garcia", "q1" => "Bus", "createdAt" => "2025-01-01"}
@@ -78,6 +88,20 @@ defmodule SagalsWeb.TenimaletaControllerTest do
       stub_tenimaleta()
 
       resp = conn |> authed_conn() |> get("/api/tenimaleta/forms") |> json_response(200)
+
+      assert is_map(resp["data"])
+    end
+  end
+
+  describe "GET /api/tenimaleta/calendar" do
+    test "returns 401 without auth", %{conn: conn} do
+      conn |> get("/api/tenimaleta/calendar") |> json_response(401)
+    end
+
+    test "returns calendar events when authenticated", %{conn: conn} do
+      stub_tenimaleta()
+
+      resp = conn |> authed_conn() |> get("/api/tenimaleta/calendar") |> json_response(200)
 
       assert is_map(resp["data"])
     end
@@ -152,6 +176,20 @@ defmodule SagalsWeb.TenimaletaControllerTest do
       on_exit(fn -> Application.delete_env(:sagals, :req_options) end)
 
       resp = conn |> authed_conn() |> get("/api/tenimaleta/castellers") |> json_response(502)
+      assert resp["error"] != nil
+    end
+  end
+
+  describe "GET /api/tenimaleta/calendar (error paths)" do
+    test "returns 502 when API fails", %{conn: conn} do
+      Req.Test.stub(:tenimaleta, fn conn ->
+        Plug.Conn.send_resp(conn, 500, "Internal Server Error")
+      end)
+
+      Application.put_env(:sagals, :req_options, plug: {Req.Test, :tenimaleta})
+      on_exit(fn -> Application.delete_env(:sagals, :req_options) end)
+
+      resp = conn |> authed_conn() |> get("/api/tenimaleta/calendar") |> json_response(502)
       assert resp["error"] != nil
     end
   end
