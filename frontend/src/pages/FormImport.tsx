@@ -23,7 +23,7 @@ const DIRECTION_LABELS = {
 
 function detectTransportQuestion(elements: TenimaletaForm['elements']): string {
   return elements.filter(el => {
-    const q = el.content.question.toLowerCase()
+    const q = el.content?.question?.toLowerCase() ?? ''
     return (el.type === 'checkbox' || el.type === 'multiple-choice') &&
       (q.includes('bus') || q.includes('autobús') || q.includes('transport'))
   })[0]?.id ?? ''
@@ -31,7 +31,7 @@ function detectTransportQuestion(elements: TenimaletaForm['elements']): string {
 
 function detectTextQuestion(elements: TenimaletaForm['elements'], keywords: string[]): string {
   return elements.filter(el => {
-    const q = el.content.question.toLowerCase()
+    const q = el.content?.question?.toLowerCase() ?? ''
     return (el.type === 'paragraph' || el.type === 'short-answer') &&
       keywords.some(k => q.includes(k))
   })[0]?.id ?? ''

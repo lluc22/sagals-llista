@@ -307,12 +307,12 @@ export default function ListPage() {
   function handleSearch(value: string) {
     setSearch(value)
     if (value) {
-      const q = value.toLowerCase()
+      const q = normalize(value)
       const hitStatuses = new Set(
         trips
           .filter(t => {
             const { first_name, last_name, last_name2, nickname } = t.participant
-            return [first_name, last_name, last_name2, nickname].some(s => s?.toLowerCase().includes(q))
+            return [first_name, last_name, last_name2, nickname].some(s => normalize(s).includes(q))
           })
           .map(t => t.attendance.status)
       )
@@ -346,7 +346,7 @@ export default function ListPage() {
     if (!search) return true
     const q = normalize(search)
     const { first_name, last_name, last_name2, nickname } = t.participant
-    return [first_name, last_name, last_name2, nickname].some(s => s && normalize(s).includes(q))
+    return [first_name, last_name, last_name2, nickname].some(s => normalize(s).includes(q))
   })
 
   const pendents = filtered.filter(t => t.attendance.status === 'pendent')

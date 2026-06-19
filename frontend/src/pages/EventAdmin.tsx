@@ -256,7 +256,7 @@ export default function EventAdmin() {
   const filtered = sorted.filter(p => {
     if (!search) return true
     const q = normalize(search)
-    return [p.first_name, p.last_name, p.last_name2, p.nickname].some(s => s && normalize(s).includes(q))
+    return [p.first_name, p.last_name, p.last_name2, p.nickname].some(s => normalize(s).includes(q))
   })
 
   const needsAttention = filtered.filter(p => (p.companions || p.observations) && !p.reviewed)
